@@ -14,7 +14,57 @@ resource "aws_subnet" "main_subnet" {
   availability_zone = "ap-southeast-2a"
 
   tags = {
-    Name = "devboard-subnet"
+    Name = "devboard-subnet-a"
+  }
+}
+
+resource "aws_subnet" "main_subnet_b" {
+  vpc_id            = aws_vpc.main_vpc.id
+  cidr_block        = "10.0.2.0/24"
+  availability_zone = "ap-southeast-2b"
+
+  tags = {
+    Name = "devboard-subnet-b"
+  }
+}
+
+resource "aws_db_subnet_group" "devboard_db_subnet_group" {
+  name       = "devboard-db-subnet-group"
+  subnet_ids = [
+    aws_subnet.main_subnet.id,
+    aws_subnet.main_subnet_b.id
+  ]
+
+  tags = {
+    Name = "devboard-db-subnet-group"
+  }
+
+  depends_on = [
+    aws_route_table_association.subnet_assoc_a,
+    aws_route_table_association.subnet_assoc_b
+  ]
+}
+
+resource "aws_db_instance" "devboard_postgres" {
+  allocated_storage      = 20
+  engine                 = "postgres"
+  engine_version         = "15"
+  instance_class         = "db.t3.micro"
+  db_name                = "devboarddb"
+  username               = var.db_username
+  password               = var.db_password
+  parameter_group_name   = "default.postgres15"
+  skip_final_snapshot    = true
+  publicly_accessible    = true
+  db_subnet_group_name   = aws_db_subnet_group.devboard_db_subnet_group.name
+  vpc_security_group_ids = [aws_security_group.devboard_sg.id]
+
+  tags = {
+    Name = "devboard-postgres"
+  }
+
+  lifecycle {
+    prevent_destroy = false
   }
 }
 
@@ -39,8 +89,13 @@ resource "aws_route_table" "main_route_table" {
   }
 }
 
-resource "aws_route_table_association" "subnet_assoc" {
+resource "aws_route_table_association" "subnet_assoc_a" {
   subnet_id      = aws_subnet.main_subnet.id
+  route_table_id = aws_route_table.main_route_table.id
+}
+
+resource "aws_route_table_association" "subnet_assoc_b" {
+  subnet_id      = aws_subnet.main_subnet_b.id
   route_table_id = aws_route_table.main_route_table.id
 }
 
@@ -51,7 +106,7 @@ resource "aws_key_pair" "devboard_key" {
 
 resource "aws_security_group" "devboard_sg" {
   name        = "devboard-sg"
-  description = "Allow SSH and HTTP"
+  description = "Allow SSH, HTTP, and PostgreSQL"
   vpc_id      = aws_vpc.main_vpc.id
 
   ingress {
@@ -70,6 +125,14 @@ resource "aws_security_group" "devboard_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    description = "PostgreSQL"
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -80,6 +143,11 @@ resource "aws_security_group" "devboard_sg" {
   tags = {
     Name = "devboard-sg"
   }
+
+  lifecycle {
+    prevent_destroy = false
+  }
+
 }
 
 resource "aws_instance" "devboard_ec2" {
@@ -94,10 +162,9 @@ resource "aws_instance" "devboard_ec2" {
   }
 }
 
-
 data "aws_ami" "ubuntu" {
   most_recent = true
-  owners      = ["099720109477"] # Canonical 的 AWS 账户 ID
+  owners      = ["099720109477"]
 
   filter {
     name   = "name"
@@ -109,4 +176,3 @@ data "aws_ami" "ubuntu" {
     values = ["hvm"]
   }
 }
-
