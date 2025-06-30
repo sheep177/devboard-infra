@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import TaskForm from "./components/TaskForm";
 import TaskList from "./components/TaskList";
+import TaskModal from "./components/TaskModal";
 import api from "./api";
 import type { Task } from "./types";
 
@@ -11,9 +12,11 @@ function App() {
     const [reload, setReload] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [filterStatus, setFilterStatus] = useState("All");
-    const [sortBy, setSortBy] = useState("title"); // default sort
+    const [sortBy, setSortBy] = useState("title");
+    const [currentPage, setCurrentPage] = useState(1);
+    const TASKS_PER_PAGE = 5;
 
-
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
     const triggerReload = () => setReload((prev) => !prev);
 
@@ -36,24 +39,30 @@ function App() {
 
     return (
         <div className="min-h-screen bg-gray-100 px-4 py-8">
-            <div className="max-w-xl mx-auto bg-white p-6 rounded-2xl shadow-md">
+            <div className="max-w-xl mx-auto bg-white p-6 rounded-2xl shadow-md relative">
                 <h1 className="text-2xl font-bold text-center mb-6 text-blue-600">
                     DevBoard Task Manager
                 </h1>
+
                 <input
                     type="text"
                     placeholder="🔍 Search tasks..."
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(e) => {
+                        setSearchQuery(e.target.value);
+                        setCurrentPage(1);
+                    }}
                     className="w-full mb-4 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
 
-                {/* ✅ 状态筛选按钮 */}
                 <div className="flex justify-center gap-2 mb-4 text-sm font-medium">
                     {["All", "ToDo", "InProgress", "Done"].map((status) => (
                         <button
                             key={status}
-                            onClick={() => setFilterStatus(status)}
+                            onClick={() => {
+                                setFilterStatus(status);
+                                setCurrentPage(1);
+                            }}
                             className={`px-3 py-1 rounded-full border ${
                                 filterStatus === status
                                     ? "bg-blue-600 text-white"
@@ -77,8 +86,6 @@ function App() {
                     </select>
                 </div>
 
-
-
                 <TaskForm onTaskCreated={triggerReload} />
 
                 <hr className="my-4" />
@@ -91,9 +98,16 @@ function App() {
                     searchQuery={searchQuery}
                     filterStatus={filterStatus}
                     sortBy={sortBy}
+                    currentPage={currentPage}
+                    tasksPerPage={TASKS_PER_PAGE}
+                    onPageChange={setCurrentPage}
+                    onSelect={(task) => setSelectedTask(task)}
                 />
-
             </div>
+
+            {selectedTask && (
+                <TaskModal task={selectedTask} onClose={() => setSelectedTask(null)} />
+            )}
         </div>
     );
 }
