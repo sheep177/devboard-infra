@@ -2,10 +2,14 @@ import { useState, useEffect } from "react";
 import TaskForm from "./components/TaskForm";
 import TaskList from "./components/TaskList";
 import TaskModal from "./components/TaskModal";
+import LoginPanel from "./components/LoginPanel";
+import { useUser } from "./contexts/UserContext";
 import api from "./api";
 import type { Task } from "./types";
 
 function App() {
+    const { user, logout } = useUser();
+
     const [tasks, setTasks] = useState<Task[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -15,7 +19,6 @@ function App() {
     const [sortBy, setSortBy] = useState("title");
     const [currentPage, setCurrentPage] = useState(1);
     const TASKS_PER_PAGE = 5;
-
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
     const triggerReload = () => setReload((prev) => !prev);
@@ -37,12 +40,26 @@ function App() {
             });
     }, [reload]);
 
+
+    if (!user) return <LoginPanel />;
+
     return (
         <div className="min-h-screen bg-gray-100 px-4 py-8">
             <div className="w-full max-w-xl mx-auto bg-white p-4 sm:p-6 rounded-2xl shadow-md relative">
-            <h1 className="text-2xl font-bold text-center mb-6 text-blue-600">
+                <h1 className="text-2xl font-bold text-center mb-3 text-blue-600">
                     DevBoard Task Manager
                 </h1>
+                <div className="text-sm text-gray-600 text-center mb-6 flex justify-between items-center">
+          <span>
+            👋 Logged in as <strong>{user.username}</strong> ({user.role})
+          </span>
+                    <button
+                        onClick={logout}
+                        className="text-red-500 text-xs underline hover:text-red-600"
+                    >
+                        Logout
+                    </button>
+                </div>
 
                 <input
                     type="text"
@@ -56,7 +73,7 @@ function App() {
                 />
 
                 <div className="flex flex-wrap justify-center gap-2 mb-4 text-sm font-medium">
-                {["All", "ToDo", "InProgress", "Done"].map((status) => (
+                    {["All", "ToDo", "InProgress", "Done"].map((status) => (
                         <button
                             key={status}
                             onClick={() => {
