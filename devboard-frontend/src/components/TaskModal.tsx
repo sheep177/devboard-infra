@@ -13,10 +13,11 @@ export default function TaskModal({
             onClick={onClose}
         >
             <div
-                className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md"
+                className="bg-white rounded-xl shadow-lg w-[90%] sm:w-full sm:max-w-md p-4 sm:p-6"
                 onClick={(e) => e.stopPropagation()}
             >
                 <h2 className="text-xl font-bold text-blue-600 mb-4">Task Details</h2>
+
                 <p className="text-gray-800 mb-2">
                     <span className="font-semibold">Title:</span> {task.title}
                 </p>
@@ -26,7 +27,7 @@ export default function TaskModal({
 
                 <button
                     onClick={onClose}
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                    className="bg-blue-600 text-white w-full py-2 rounded hover:bg-blue-700 transition"
                 >
                     Close
                 </button>

@@ -39,8 +39,8 @@ function App() {
 
     return (
         <div className="min-h-screen bg-gray-100 px-4 py-8">
-            <div className="max-w-xl mx-auto bg-white p-6 rounded-2xl shadow-md relative">
-                <h1 className="text-2xl font-bold text-center mb-6 text-blue-600">
+            <div className="w-full max-w-xl mx-auto bg-white p-4 sm:p-6 rounded-2xl shadow-md relative">
+            <h1 className="text-2xl font-bold text-center mb-6 text-blue-600">
                     DevBoard Task Manager
                 </h1>
 
@@ -55,8 +55,8 @@ function App() {
                     className="w-full mb-4 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
 
-                <div className="flex justify-center gap-2 mb-4 text-sm font-medium">
-                    {["All", "ToDo", "InProgress", "Done"].map((status) => (
+                <div className="flex flex-wrap justify-center gap-2 mb-4 text-sm font-medium">
+                {["All", "ToDo", "InProgress", "Done"].map((status) => (
                         <button
                             key={status}
                             onClick={() => {

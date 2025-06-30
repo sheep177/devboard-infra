@@ -79,7 +79,7 @@ export default function TaskList({
                     <li
                         key={task.id}
                         onClick={() => onSelect(task)}
-                        className="flex justify-between items-center p-4 bg-white rounded-xl shadow border-l-4 border-blue-500 hover:shadow-md transition cursor-pointer"
+                        className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0 p-4 bg-white rounded-xl shadow border-l-4 border-blue-500 hover:shadow-md transition cursor-pointer"
                     >
                         <div>
                             <p className="font-semibold text-gray-800 text-lg">{task.title}</p>
@@ -87,18 +87,19 @@ export default function TaskList({
                         </div>
                         <button
                             onClick={(e) => {
-                                e.stopPropagation(); // ✅ 避免点击 delete 时也触发 onSelect
+                                e.stopPropagation();
                                 if (confirm("Are you sure you want to delete this task?")) {
                                     fetch(`http://localhost:8080/api/tasks/${task.id}`, {
                                         method: "DELETE",
                                     }).then(() => onReload());
                                 }
                             }}
-                            className="text-red-500 hover:text-red-600 font-medium hover:underline focus:outline-none bg-transparent p-0"
+                            className="self-end sm:self-auto text-red-500 hover:text-red-600 font-medium hover:underline focus:outline-none bg-transparent p-0"
                         >
                             Delete
                         </button>
                     </li>
+
                 ))}
             </ul>
 
