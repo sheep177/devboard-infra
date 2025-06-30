@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
-import TaskList from "./components/TaskList";
 import TaskForm from "./components/TaskForm";
+import TaskList from "./components/TaskList";
 import api from "./api";
-import "./App.css";
-import type {Task} from "./types";
+import type { Task } from "./types";
 
-function App() {
+export default function App() {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [reload, setReload] = useState(false);
+
+    const triggerReload = () => setReload((prev) => !prev);
 
     useEffect(() => {
         setLoading(true);
@@ -24,19 +26,17 @@ function App() {
             .finally(() => {
                 setLoading(false);
             });
-    }, []);
-
-    const addTask = (task: Task) => {
-        setTasks((prev) => [...prev, task]);
-    };
+    }, [reload]);
 
     return (
-        <div className="container">
-            <h1>DevBoard Task Manager</h1>
-            <TaskForm onTaskCreated={addTask} />
-            <TaskList tasks={tasks} loading={loading} error={error} />
+        <div className="min-h-screen bg-gray-100 flex items-start justify-center px-4 py-10">
+            <div className="w-full max-w-xl space-y-6">
+                <h1 className="text-3xl font-bold text-center text-blue-600">
+                    DevBoard Task Manager
+                </h1>
+                <TaskForm onTaskCreated={triggerReload} />
+                <TaskList tasks={tasks} loading={loading} error={error} onDelete={triggerReload} />
+            </div>
         </div>
     );
 }
-
-export default App;
