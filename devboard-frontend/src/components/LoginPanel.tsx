@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useUser } from "../contexts/UserContext";
+import { useUser } from "../contexts/useUser.ts";
 
 export default function LoginPanel() {
   const { login } = useUser();

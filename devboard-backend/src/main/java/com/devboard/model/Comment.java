@@ -15,6 +15,8 @@ public class Comment {
     private String username;     // 用户名
     private String content;      // 评论内容
     private LocalDateTime createdAt;
+    private Long parentId; // ✅ null 表示主评论，非 null 表示回复
+
 
     private Long tenantId;       // 所属租户
 
@@ -76,5 +78,13 @@ public class Comment {
 
     public void setTenantId(Long tenantId) {
         this.tenantId = tenantId;
+    }
+
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
     }
 }

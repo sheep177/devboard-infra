@@ -3,7 +3,7 @@ import TaskForm from "./components/TaskForm";
 import TaskList from "./components/TaskList";
 import TaskModal from "./components/TaskModal";
 import LoginPanel from "./components/LoginPanel";
-import { useUser } from "./contexts/UserContext";
+import { useUser } from "./contexts/useUser";
 import api from "./api";
 import type { Task } from "./types";
 
