@@ -10,7 +10,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "*")
 public class TaskController {
 
     private final TaskRepository taskRepository;
@@ -54,6 +53,17 @@ public class TaskController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    // 获取单个任务（按 ID）
+    @GetMapping("/tasks/{id}")
+    public ResponseEntity<Task> getTaskById(@PathVariable Long id) {
+        Optional<Task> task = taskRepository.findById(id);
+        return task.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+
+
 
 
 }

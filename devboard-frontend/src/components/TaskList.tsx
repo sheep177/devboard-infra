@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import type { Task } from "../types";
 
 export default function TaskList({
@@ -11,7 +12,6 @@ export default function TaskList({
                                      currentPage,
                                      tasksPerPage,
                                      onPageChange,
-                                     onSelect, // ✅ 传入点击任务回调
                                  }: {
     tasks: Task[];
     loading: boolean;
@@ -23,8 +23,9 @@ export default function TaskList({
     currentPage: number;
     tasksPerPage: number;
     onPageChange: (page: number) => void;
-    onSelect: (task: Task) => void;
 }) {
+    const navigate = useNavigate();
+
     if (loading) return <p className="text-gray-500 italic">Loading tasks...</p>;
     if (error) return <p className="text-red-600">{error}</p>;
 
@@ -78,7 +79,7 @@ export default function TaskList({
                 {pagedTasks.map((task) => (
                     <li
                         key={task.id}
-                        onClick={() => onSelect(task)}
+                        onClick={() => navigate(`/tasks/${task.id}`)}
                         className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0 p-4 bg-white rounded-xl shadow border-l-4 border-blue-500 hover:shadow-md transition cursor-pointer"
                     >
                         <div>
@@ -99,7 +100,6 @@ export default function TaskList({
                             Delete
                         </button>
                     </li>
-
                 ))}
             </ul>
 
@@ -113,8 +113,8 @@ export default function TaskList({
                 </button>
 
                 <span>
-          Page {currentPage} of {totalPages}
-        </span>
+                    Page {currentPage} of {totalPages}
+                </span>
 
                 <button
                     disabled={currentPage === totalPages}
