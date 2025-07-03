@@ -37,11 +37,14 @@ public class TaskController {
                 .map(task -> {
                     task.setTitle(updatedTask.getTitle());
                     task.setStatus(updatedTask.getStatus());
+                    task.setDescription(updatedTask.getDescription());
+                    task.setPriority(updatedTask.getPriority());
                     Task savedTask = taskRepository.save(task);
                     return ResponseEntity.ok(savedTask);
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
+
 
     @DeleteMapping("/tasks/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {

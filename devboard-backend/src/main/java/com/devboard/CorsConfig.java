@@ -1,4 +1,4 @@
-package com.devboard.config;
+package com.devboard;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,10 +14,12 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/**")
-                        .allowedOriginPatterns("http://localhost:5173")  // ✅ 这里用 patterns
-                        .allowedMethods("GET", "POST", "PUT", "DELETE")
-                        .allowCredentials(true); // ✅ 与上面兼容
+                        .allowedOriginPatterns("http://localhost:5173") // ✅ 改成这个
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedHeaders("*")
+                        .allowCredentials(true); // ✅ 确保你要允许 cookie/token
             }
         };
     }
 }
+

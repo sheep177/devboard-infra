@@ -14,6 +14,8 @@ export default function TaskModal({
 }) {
     const [editedTitle, setEditedTitle] = useState(task.title);
     const [editedStatus, setEditedStatus] = useState(task.status);
+    const [editedPriority, setEditedPriority] = useState<Task["priority"]>(task.priority ?? "Medium");
+    const [editedDescription, setEditedDescription] = useState(task.description ?? "");
 
     const handleSave = async () => {
         try {
@@ -21,9 +23,11 @@ export default function TaskModal({
                 ...task,
                 title: editedTitle,
                 status: editedStatus,
+                priority: editedPriority,
+                description: editedDescription,
             });
-            onUpdate(); // 通知刷新任务列表
-            onClose();  // 关闭弹窗
+            onUpdate();
+            onClose();
         } catch (err) {
             alert("Failed to update task");
             console.error(err);
@@ -57,9 +61,33 @@ export default function TaskModal({
                     className="w-full px-3 py-1.5 border rounded mb-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 >
                     <option value="ToDo">ToDo</option>
-                    <option value="In Progress">In Progress</option>
+                    <option value="InProgress">In Progress</option>
                     <option value="Done">Done</option>
                 </select>
+
+                <label className="block text-sm font-medium text-gray-700">Priority</label>
+                <select
+                    value={editedPriority}
+                    onChange={(e) => {
+                        const value = e.target.value;
+                        if (value === "Low" || value === "Medium" || value === "High") {
+                            setEditedPriority(value);
+                        }
+                    }}
+                    className="w-full px-3 py-1.5 border rounded mb-3 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                >
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                </select>
+
+                <label className="block text-sm font-medium text-gray-700">Description</label>
+                <textarea
+                    value={editedDescription}
+                    onChange={(e) => setEditedDescription(e.target.value)}
+                    className="w-full px-3 py-1.5 border rounded mb-3 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                    rows={3}
+                />
 
                 <div className="flex justify-end gap-2 mb-4">
                     <button

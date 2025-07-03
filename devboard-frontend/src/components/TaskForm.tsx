@@ -6,12 +6,14 @@ export default function TaskForm({ onTaskCreated }: { onTaskCreated: (task: Task
     const [task, setTask] = useState<Omit<Task, "id">>({
         title: "",
         status: "ToDo",
-        priority: "Medium", // ✅ 默认值
+        priority: "Medium",
+        description: ""
     });
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         setTask({ ...task, [e.target.name]: e.target.value });
     };
 
@@ -23,7 +25,7 @@ export default function TaskForm({ onTaskCreated }: { onTaskCreated: (task: Task
         try {
             const response = await api.post<Task>("/tasks", task);
             onTaskCreated(response.data);
-            setTask({ title: "", status: "ToDo", priority: "Medium" }); // ✅ 清空后保留默认
+            setTask({ title: "", status: "ToDo", priority: "Medium", description: "" }); // ✅ 重置全部
         } catch (err) {
             console.error("Error creating task:", err);
             setError("❌ Failed to create task");
@@ -73,6 +75,18 @@ export default function TaskForm({ onTaskCreated }: { onTaskCreated: (task: Task
                     <option value="Medium">Medium</option>
                     <option value="High">High</option>
                 </select>
+            </div>
+
+            <div>
+                <label className="block mb-1 text-sm font-medium text-gray-700">Description</label>
+                <textarea
+                    name="description"
+                    value={task.description}
+                    onChange={handleChange}
+                    placeholder="Optional description..."
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
+                    rows={3}
+                />
             </div>
 
             <button

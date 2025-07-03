@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import api from "../api";
 import type { Task } from "../types";
+import CommentSection from "./CommentSection"; // ✅ 引入评论组件
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 dayjs.extend(relativeTime);
@@ -99,6 +100,11 @@ export default function TaskDetail() {
                             {dayjs(task.createdAt).fromNow()}
                         </p>
                     )}
+                </div>
+
+                {/* ✅ 评论区 */}
+                <div className="pt-6 border-t">
+                    <CommentSection taskId={task.id!} />
                 </div>
             </div>
         </div>
