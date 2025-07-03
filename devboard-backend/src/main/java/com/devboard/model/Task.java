@@ -26,21 +26,28 @@ public class Task {
 
     private LocalDateTime createdAt;
 
+    private LocalDateTime updatedAt;
+
     @PrePersist
     public void onCreate() {
         this.createdAt = LocalDateTime.now();
+        this.updatedAt = this.createdAt;
+    }
+
+    @PreUpdate
+    public void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 
     private String priority = "Medium";
-
-    public String getPriority() {
-        return priority;
-    }
 
     public void setPriority(String priority) {
         this.priority = priority;
     }
 
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
 
     // Getter & Setter 省略只保留必要的：
 

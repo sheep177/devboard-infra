@@ -4,6 +4,7 @@ export interface Task {
     status: string;
     description?: string;
     createdAt?: string;
+    updatedAt: string;
     priority?: "Low" | "Medium" | "High";
 }
 

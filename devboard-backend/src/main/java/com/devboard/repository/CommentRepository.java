@@ -1,6 +1,7 @@
 package com.devboard.repository;
 
 import com.devboard.model.Comment;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import org.springframework.data.domain.Page;
@@ -13,4 +14,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     Page<Comment> findByTaskId(Long taskId, Pageable pageable);
     List<Comment> findByTaskIdAndParentIdIsNullOrderByCreatedAtAsc(Long taskId); // 新增：只查主评论
     List<Comment> findByParentIdOrderByCreatedAtAsc(Long parentId); // 新增：查某条评论的所有回复
+    List<Comment> findByTaskIdAndParentIdIsNull(Long taskId, Sort sort);
+
 }

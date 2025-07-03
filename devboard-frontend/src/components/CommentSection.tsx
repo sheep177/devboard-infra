@@ -4,18 +4,20 @@ import { useUser } from "../contexts/useUser";
 import CommentThread from "./CommentThread";
 import type { Comment } from "./CommentThread";
 
-
 export default function CommentSection({ taskId }: { taskId: number }) {
     const { user } = useUser();
     const [topComments, setTopComments] = useState<Comment[]>([]);
     const [newComment, setNewComment] = useState("");
+    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc"); // 默认“最新优先”
     const [loading, setLoading] = useState(false);
     const [posting, setPosting] = useState(false);
 
     const fetchTopLevel = async () => {
         setLoading(true);
         try {
-            const res = await api.get(`/comments/${taskId}/top`);
+            const res = await api.get(`/comments/${taskId}/top`, {
+                params: { sort: sortOrder },
+            });
             setTopComments(res.data);
         } catch (err) {
             console.error("Failed to load comments", err);
@@ -26,7 +28,7 @@ export default function CommentSection({ taskId }: { taskId: number }) {
 
     useEffect(() => {
         if (user) fetchTopLevel();
-    }, [taskId, user]);
+    }, [taskId, user, sortOrder]);
 
     const handleAddTopComment = async () => {
         if (!newComment.trim()) return;
@@ -39,7 +41,9 @@ export default function CommentSection({ taskId }: { taskId: number }) {
                 username: user.username,
                 parentId: null,
             });
-            setTopComments((prev) => [...prev, res.data]);
+            setTopComments((prev) =>
+                sortOrder === "desc" ? [res.data, ...prev] : [...prev, res.data]
+            );
             setNewComment("");
         } catch (err) {
             console.error("Failed to post", err);
@@ -48,11 +52,23 @@ export default function CommentSection({ taskId }: { taskId: number }) {
         }
     };
 
-    if (!user) return <p className="text-red-500">Please log in to view or post comments.</p>;
+    if (!user) {
+        return <p className="text-red-500">Please log in to view or post comments.</p>;
+    }
 
     return (
         <div className="mt-6">
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">💬 Comments</h3>
+            <div className="flex justify-between items-center mb-2">
+                <h3 className="text-sm font-semibold text-gray-700">💬 Comments</h3>
+                <button
+                    onClick={() =>
+                        setSortOrder((prev) => (prev === "desc" ? "asc" : "desc"))
+                    }
+                    className="text-blue-600 text-sm hover:underline"
+                >
+                    Sort: {sortOrder === "desc" ? "Newest First" : "Oldest First"}
+                </button>
+            </div>
 
             {loading ? (
                 <p className="text-gray-400">Loading...</p>

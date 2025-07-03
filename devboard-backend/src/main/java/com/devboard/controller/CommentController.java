@@ -29,13 +29,14 @@ public class CommentController {
     public Page<Comment> getCommentsPaged(
             @PathVariable Long taskId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "desc") String sort // 👈 新增
     ) {
-        return commentRepo.findByTaskId(
-                taskId,
-                PageRequest.of(page, size, Sort.by("createdAt").ascending())
-        );
+        Sort.Direction direction = sort.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "createdAt"));
+        return commentRepo.findByTaskId(taskId, pageable);
     }
+
 
 
     @GetMapping("/{taskId}/all")
@@ -50,9 +51,14 @@ public class CommentController {
     }
 
     @GetMapping("/{taskId}/top")
-    public List<Comment> getTopLevelComments(@PathVariable Long taskId) {
-        return commentRepo.findByTaskIdAndParentIdIsNullOrderByCreatedAtAsc(taskId);
+    public List<Comment> getTopLevelComments(
+            @PathVariable Long taskId,
+            @RequestParam(defaultValue = "desc") String sort
+    ) {
+        Sort.Direction direction = sort.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        return commentRepo.findByTaskIdAndParentIdIsNull(taskId, Sort.by(direction, "createdAt"));
     }
+
 
     @GetMapping("/replies/{parentId}")
     public List<Comment> getReplies(@PathVariable Long parentId) {
@@ -75,4 +81,27 @@ public class CommentController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateComment(
+            @PathVariable Long id,
+            @RequestBody Comment updated
+    ) {
+        Optional<Comment> optional = commentRepo.findById(id);
+        if (optional.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Comment existing = optional.get();
+
+        // 只允许作者编辑
+        if (!existing.getUserId().equals(updated.getUserId())) {
+            return ResponseEntity.status(403).body("❌ Not allowed to edit this comment");
+        }
+
+        existing.setContent(updated.getContent());
+        commentRepo.save(existing);
+        return ResponseEntity.ok(existing);
+    }
+
 }

@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import type { Task } from "../types";
+import { useState } from "react";
 
 export default function TaskList({
                                      tasks,
@@ -8,11 +9,10 @@ export default function TaskList({
                                      onReload,
                                      searchQuery,
                                      filterStatus,
-                                     sortBy,
+                                     filterPriority,
                                      currentPage,
                                      tasksPerPage,
                                      onPageChange,
-                                     filterPriority
                                  }: {
     tasks: Task[];
     loading: boolean;
@@ -21,15 +21,13 @@ export default function TaskList({
     searchQuery: string;
     filterStatus: string;
     filterPriority: string;
-    sortBy: string;
     currentPage: number;
     tasksPerPage: number;
     onPageChange: (page: number) => void;
 }) {
     const navigate = useNavigate();
-
-    if (loading) return <p className="text-gray-500 italic">Loading tasks...</p>;
-    if (error) return <p className="text-red-600">{error}</p>;
+    const [sortBy, setSortBy] = useState<"updatedAt" | "createdAt" | "title" | "status">("updatedAt");
+    const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
     const sortStatusWeight: Record<Task["status"], number> = {
         ToDo: 1,
@@ -53,7 +51,6 @@ export default function TaskList({
 
     const getPriorityBadge = (priority?: string) => {
         if (!priority) return null;
-
         const dotColor = {
             Low: "bg-green-500",
             Medium: "bg-blue-500",
@@ -68,24 +65,34 @@ export default function TaskList({
         );
     };
 
-
     const filteredTasks = tasks
-        .filter((task) =>
-            filterPriority === "All" ? true : task.priority === filterPriority
-        )
-        .filter((task) =>
-            filterStatus === "All" ? true : task.status === filterStatus
-        )
-        .filter((task) =>
-            task.title.toLowerCase().includes(searchQuery.toLowerCase())
-        )
+        .filter((task) => filterPriority === "All" || task.priority === filterPriority)
+        .filter((task) => filterStatus === "All" || task.status === filterStatus)
+        .filter((task) => task.title.toLowerCase().includes(searchQuery.toLowerCase()))
         .sort((a, b) => {
-            if (sortBy === "title") {
-                return a.title.localeCompare(b.title);
-            } else if (sortBy === "status") {
-                return sortStatusWeight[a.status] - sortStatusWeight[b.status];
+            let aVal: string | number;
+            let bVal: string | number;
+
+            if (sortBy === "status") {
+                aVal = sortStatusWeight[a.status];
+                bVal = sortStatusWeight[b.status];
+            } else if (sortBy === "title") {
+                aVal = a.title.toLowerCase();
+                bVal = b.title.toLowerCase();
+            } else if (sortBy === "createdAt") {
+                aVal = new Date(a.createdAt ?? "").getTime();
+                bVal = new Date(b.createdAt ?? "").getTime();
             } else {
-                return 0;
+                aVal = new Date(a.updatedAt ?? "").getTime();
+                bVal = new Date(b.updatedAt ?? "").getTime();
+            }
+
+            if (typeof aVal === "number" && typeof bVal === "number") {
+                return sortDirection === "asc" ? aVal - bVal : bVal - aVal;
+            } else {
+                return sortDirection === "asc"
+                    ? (aVal as string).localeCompare(bVal as string)
+                    : (bVal as string).localeCompare(aVal as string);
             }
         });
 
@@ -93,11 +100,38 @@ export default function TaskList({
     const start = (currentPage - 1) * tasksPerPage;
     const pagedTasks = filteredTasks.slice(start, start + tasksPerPage);
 
-    if (filteredTasks.length === 0)
-        return <p className="text-gray-400">No tasks matched your search.</p>;
+    if (loading) return <p className="text-gray-500 italic">Loading tasks...</p>;
+    if (error) return <p className="text-red-600">{error}</p>;
+    if (filteredTasks.length === 0) return <p className="text-gray-400">No tasks matched your search.</p>;
 
     return (
         <div>
+            <div className="flex flex-wrap justify-between items-center mt-4 gap-3">
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <label>Sort by:</label>
+                    <select
+                        value={sortBy}
+                        onChange={(e) =>
+                            setSortBy(e.target.value as "updatedAt" | "createdAt" | "title" | "status")
+                        }
+                        className="border px-2 py-1 rounded"
+                    >
+                        <option value="updatedAt">Updated Time</option>
+                        <option value="createdAt">Created Time</option>
+                        <option value="title">Title</option>
+                        <option value="status">Status</option>
+                    </select>
+                    <button
+                        onClick={() =>
+                            setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"))
+                        }
+                        className="text-blue-600 hover:underline"
+                    >
+                        {sortDirection === "asc" ? "▲ Ascending" : "▼ Descending"}
+                    </button>
+                </div>
+            </div>
+
             <ul className="space-y-4 mt-4">
                 {pagedTasks.map((task) => (
                     <li
@@ -107,8 +141,7 @@ export default function TaskList({
                     >
                         <div>
                             <p className="font-semibold text-gray-800 text-lg">{task.title}</p>
-                            <div className="mt-1">{getStatusBadge(task.status)}
-                                {getPriorityBadge(task.priority)}</div>
+                            <div className="mt-1">{getStatusBadge(task.status)} {getPriorityBadge(task.priority)}</div>
                         </div>
                         <button
                             onClick={(e) => {
@@ -135,11 +168,9 @@ export default function TaskList({
                 >
                     Prev
                 </button>
-
                 <span>
                     Page {currentPage} of {totalPages}
                 </span>
-
                 <button
                     disabled={currentPage === totalPages}
                     onClick={() => onPageChange(currentPage + 1)}

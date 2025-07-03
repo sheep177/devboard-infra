@@ -20,6 +20,9 @@ export default function CommentThread({ comment }: { comment: Comment }) {
     const [replying, setReplying] = useState(false);
     const [replyText, setReplyText] = useState("");
 
+    const [editing, setEditing] = useState(false);
+    const [editText, setEditText] = useState(comment.content);
+
     const fetchReplies = async () => {
         const res = await api.get(`/comments/replies/${comment.id}`);
         setReplies(res.data);
@@ -29,7 +32,7 @@ export default function CommentThread({ comment }: { comment: Comment }) {
         if (!replyText.trim()) return;
         const res = await api.post("/comments", {
             content: replyText,
-            taskId: comment.taskId, // 👈 用 parent 评论的 taskId
+            taskId: comment.taskId,
             userId: user.id,
             username: user.username,
             parentId: comment.id,
@@ -45,23 +48,76 @@ export default function CommentThread({ comment }: { comment: Comment }) {
         setShowReplies((prev) => !prev);
     };
 
+    const handleEdit = async () => {
+        if (!editText.trim()) return;
+        try {
+            const res = await api.put(`/comments/${comment.id}`, {
+                content: editText,
+                userId: user.id,
+            });
+            comment.content = res.data.content;
+            setEditing(false);
+        } catch (err) {
+            console.error("Failed to edit comment", err);
+        }
+    };
+
     return (
         <div className="ml-4 mt-3">
             <div className="bg-gray-100 p-2 rounded text-sm shadow-sm">
-                <p className="text-gray-800">{comment.content}</p>
-                <div className="text-xs text-gray-500 mt-1 flex justify-between">
-                    <span>
-                        <strong>{comment.username}</strong> · {new Date(comment.createdAt).toLocaleString()}
-                    </span>
-                    <div className="space-x-2">
-                        <button className="text-blue-500 hover:underline" onClick={() => setReplying(!replying)}>
-                            Reply
+                {editing ? (
+                    <div className="mt-2 flex gap-2">
+                        <input
+                            value={editText}
+                            onChange={(e) => setEditText(e.target.value)}
+                            className="flex-grow px-2 py-1 border rounded text-sm"
+                        />
+                        <button
+                            onClick={handleEdit}
+                            className="bg-green-600 text-white px-3 py-1 rounded text-sm"
+                        >
+                            Save
                         </button>
-                        <button className="text-gray-500 hover:underline" onClick={toggleReplies}>
-                            {showReplies ? "Hide Replies" : "Show Replies"}
+                        <button
+                            onClick={() => setEditing(false)}
+                            className="text-gray-500 text-sm underline"
+                        >
+                            Cancel
                         </button>
                     </div>
-                </div>
+                ) : (
+                    <>
+                        <p className="text-gray-800">{comment.content}</p>
+                        <div className="text-xs text-gray-500 mt-1 flex justify-between">
+                            <span>
+                                <strong>{comment.username}</strong> · {new Date(comment.createdAt).toLocaleString()}
+                            </span>
+                            <div className="space-x-2">
+                                {user.id === comment.userId && (
+                                    <button
+                                        className="text-orange-500 hover:underline"
+                                        onClick={() => setEditing(true)}
+                                    >
+                                        Edit
+                                    </button>
+                                )}
+                                <button
+                                    className="text-blue-500 hover:underline"
+                                    onClick={() => setReplying(!replying)}
+                                >
+                                    Reply
+                                </button>
+                                <button
+                                    className="text-gray-500 hover:underline"
+                                    onClick={toggleReplies}
+                                >
+                                    {showReplies ? "Hide Replies" : "Show Replies"}
+                                </button>
+                            </div>
+                        </div>
+                    </>
+                )}
+
                 {replying && (
                     <div className="mt-2 flex gap-2">
                         <input
