@@ -49,6 +49,17 @@ public class CommentController {
         return commentRepo.save(comment);
     }
 
+    @GetMapping("/{taskId}/top")
+    public List<Comment> getTopLevelComments(@PathVariable Long taskId) {
+        return commentRepo.findByTaskIdAndParentIdIsNullOrderByCreatedAtAsc(taskId);
+    }
+
+    @GetMapping("/replies/{parentId}")
+    public List<Comment> getReplies(@PathVariable Long parentId) {
+        return commentRepo.findByParentIdOrderByCreatedAtAsc(parentId);
+    }
+
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id, @RequestBody CommentDeleteRequest request) {
         Optional<Comment> optionalComment = commentRepo.findById(id);
