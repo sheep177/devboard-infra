@@ -12,6 +12,7 @@ export default function TaskList({
                                      currentPage,
                                      tasksPerPage,
                                      onPageChange,
+                                     filterPriority
                                  }: {
     tasks: Task[];
     loading: boolean;
@@ -19,6 +20,7 @@ export default function TaskList({
     onReload: () => void;
     searchQuery: string;
     filterStatus: string;
+    filterPriority: string;
     sortBy: string;
     currentPage: number;
     tasksPerPage: number;
@@ -49,7 +51,28 @@ export default function TaskList({
         }
     };
 
+    const getPriorityBadge = (priority?: string) => {
+        if (!priority) return null;
+
+        const dotColor = {
+            Low: "bg-green-500",
+            Medium: "bg-blue-500",
+            High: "bg-red-500",
+        }[priority] || "bg-gray-400";
+
+        return (
+            <div className="flex items-center gap-1 text-xs text-gray-600 mt-1">
+                <span className={`w-2.5 h-2.5 rounded-full ${dotColor}`}></span>
+                <span>{priority}</span>
+            </div>
+        );
+    };
+
+
     const filteredTasks = tasks
+        .filter((task) =>
+            filterPriority === "All" ? true : task.priority === filterPriority
+        )
         .filter((task) =>
             filterStatus === "All" ? true : task.status === filterStatus
         )
@@ -84,7 +107,8 @@ export default function TaskList({
                     >
                         <div>
                             <p className="font-semibold text-gray-800 text-lg">{task.title}</p>
-                            <div className="mt-1">{getStatusBadge(task.status)}</div>
+                            <div className="mt-1">{getStatusBadge(task.status)}
+                                {getPriorityBadge(task.priority)}</div>
                         </div>
                         <button
                             onClick={(e) => {

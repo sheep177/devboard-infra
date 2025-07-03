@@ -18,6 +18,7 @@ function App() {
     const [reload, setReload] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [filterStatus, setFilterStatus] = useState("All");
+    const [filterPriority, setFilterPriority] = useState("All");
     const [sortBy, setSortBy] = useState("title");
     const [currentPage, setCurrentPage] = useState(1);
     const TASKS_PER_PAGE = 5;
@@ -98,6 +99,26 @@ function App() {
                                     ))}
                                 </div>
 
+                                <div className="flex flex-wrap justify-center gap-2 mb-4 text-sm font-medium">
+                                    {["All", "Low", "Medium", "High"].map((priority) => (
+                                        <button
+                                            key={priority}
+                                            onClick={() => {
+                                                setFilterPriority(priority);
+                                                setCurrentPage(1);
+                                            }}
+                                            className={`px-3 py-1 rounded-full border ${
+                                                filterPriority === priority
+                                                    ? "bg-purple-600 text-white"
+                                                    : "bg-white text-gray-600 border-gray-300 hover:bg-purple-100"
+                                            }`}
+                                        >
+                                            {priority}
+                                        </button>
+                                    ))}
+                                </div>
+
+
                                 <div className="mb-4">
                                     <label className="mr-2 text-sm text-gray-700 font-medium">Sort by:</label>
                                     <select
@@ -120,6 +141,7 @@ function App() {
                                     onReload={triggerReload}
                                     searchQuery={searchQuery}
                                     filterStatus={filterStatus}
+                                    filterPriority={filterPriority} // ✅ 新增
                                     sortBy={sortBy}
                                     currentPage={currentPage}
                                     tasksPerPage={TASKS_PER_PAGE}
