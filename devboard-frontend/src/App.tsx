@@ -4,7 +4,7 @@ import TaskForm from "./components/TaskForm";
 import TaskList from "./components/TaskList";
 import TaskModal from "./components/TaskModal";
 import TaskDetail from "./components/TaskDetail";
-import LoginPanel from "./components/LoginPanel";
+import AuthPanel from "./components/AuthPanel";
 import { useUser } from "./contexts/useUser";
 import api from "./api";
 import type { Task } from "./types";
@@ -44,7 +44,7 @@ function App() {
         fetchTasks();
     }, [reload]);
 
-    if (!user) return <LoginPanel />;
+    if (!user) return <AuthPanel />;
 
     return (
         <BrowserRouter>
@@ -58,9 +58,9 @@ function App() {
                                     DevBoard Task Manager
                                 </h1>
                                 <div className="text-sm text-gray-600 text-center mb-6 flex justify-between items-center">
-                                    <span>
-                                        👋 Logged in as <strong>{user.username}</strong> ({user.role})
-                                    </span>
+                  <span>
+                    👋 Logged in as <strong>{user.username}</strong> ({user.role})
+                  </span>
                                     <button
                                         onClick={logout}
                                         className="text-red-500 text-xs underline hover:text-red-600"
@@ -118,7 +118,6 @@ function App() {
                                     ))}
                                 </div>
 
-
                                 <div className="mb-4">
                                     <label className="mr-2 text-sm text-gray-700 font-medium">Sort by:</label>
                                     <select
@@ -128,6 +127,9 @@ function App() {
                                     >
                                         <option value="title">Title (A → Z)</option>
                                         <option value="status">Status (ToDo → Done)</option>
+                                        <option value="priority">Priority (High → Low)</option>
+                                        <option value="createdAt">Created Time (Newest First)</option>
+                                        <option value="updatedAt">Updated Time (Recent First)</option>
                                     </select>
                                 </div>
 
@@ -141,13 +143,14 @@ function App() {
                                     onReload={triggerReload}
                                     searchQuery={searchQuery}
                                     filterStatus={filterStatus}
-                                    filterPriority={filterPriority} // ✅ 新增
+                                    filterPriority={filterPriority}
                                     sortBy={sortBy}
                                     currentPage={currentPage}
                                     tasksPerPage={TASKS_PER_PAGE}
                                     onPageChange={setCurrentPage}
                                 />
                             </div>
+
                             {selectedTask && (
                                 <TaskModal
                                     task={selectedTask}
