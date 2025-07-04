@@ -12,18 +12,19 @@ export default function TaskList({
                                      filterPriority,
                                      currentPage,
                                      tasksPerPage,
-                                     onPageChange,
+                                     onPageChange
                                  }: {
-    tasks: Task[];
-    loading: boolean;
-    error: string;
-    onReload: () => void;
-    searchQuery: string;
-    filterStatus: string;
-    filterPriority: string;
-    currentPage: number;
-    tasksPerPage: number;
-    onPageChange: (page: number) => void;
+    tasks: Task[],
+    loading: boolean,
+    error: string,
+    onReload: () => void,
+    searchQuery: string,
+    filterStatus: string,
+    filterPriority: string,
+    currentPage: number,
+    tasksPerPage: number,
+    onPageChange: (page: number) => void,
+    sortBy?: string
 }) {
     const navigate = useNavigate();
     const [sortBy, setSortBy] = useState<"updatedAt" | "createdAt" | "title" | "status">("updatedAt");
