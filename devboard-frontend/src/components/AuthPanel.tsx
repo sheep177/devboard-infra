@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useUser } from "../contexts/useUser";
+import api from "../api";
 
 export default function AuthPanel() {
     const { login } = useUser();
@@ -14,27 +15,27 @@ export default function AuthPanel() {
 
         try {
             const endpoint = isRegister ? "/auth/register" : "/auth/login";
-            const res = await fetch(`/api${endpoint}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username: username.trim(), password }),
+            const res = await api.post(endpoint, {
+                username: username.trim(),
+                password,
             });
 
-            const result = await res.text();
-            if (!res.ok) {
-                setError(result);
-                return;
-            }
-
             if (!isRegister) {
-                login(username.trim(), result); // result 是 token
+                const token = res.data; // 后端返回的是 token 字符串
+                login(username.trim(), token);
             } else {
-                alert("✅ 注册成功，请登录");
+                alert("✅ Successful! Please Login");
                 setIsRegister(false);
             }
-        } catch (err) {
+
+            setError("");
+        } catch (err: any) {
             console.error("Auth error:", err);
-            setError("Something went wrong. Please try again.");
+            if (err.response?.data) {
+                setError(err.response.data);
+            } else {
+                setError("Something went wrong. Please try again.");
+            }
         }
     };
 
@@ -74,7 +75,7 @@ export default function AuthPanel() {
                 <p className="text-sm text-gray-500 text-center">
                     {isRegister ? (
                         <>
-                            已有账号？{" "}
+                            Already have account?{" "}
                             <button
                                 type="button"
                                 onClick={() => {
@@ -83,12 +84,12 @@ export default function AuthPanel() {
                                 }}
                                 className="text-blue-500 underline"
                             >
-                                去登录
+                                Go Login
                             </button>
                         </>
                     ) : (
                         <>
-                            没有账号？{" "}
+                            No Account?{" "}
                             <button
                                 type="button"
                                 onClick={() => {
@@ -97,7 +98,7 @@ export default function AuthPanel() {
                                 }}
                                 className="text-blue-500 underline"
                             >
-                                去注册
+                                Go Register
                             </button>
                         </>
                     )}

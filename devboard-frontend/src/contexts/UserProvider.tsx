@@ -1,46 +1,40 @@
-// src/contexts/UserProvider.tsx
-
-import { useState, useEffect, type ReactNode } from "react";
-import { UserContext } from "./UserContext";
+import { useEffect, useState, type ReactNode } from "react";
 import type { User } from "../types";
+import { UserContext } from "./UserContext";
+
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
 
-    useEffect(() => {
-        const saved = localStorage.getItem("user");
-        if (saved) {
-            setUser(JSON.parse(saved));
-        }
-    }, []);
-
-    const login = (username: string) => {
-        const allUsers = JSON.parse(localStorage.getItem("allUsers") || "[]");
-        let existing = allUsers.find((u: User) => u.username === username);
-
-        if (!existing) {
-            const newId =
-                allUsers.length > 0
-                    ? Math.max(...allUsers.map((u: User) => u.id)) + 1
-                    : 1;
-            existing = {
-                id: newId,
-                username,
-                role: username === "admin" ? "Admin" : "Member",
-                tenantId: 101,
-            };
-            allUsers.push(existing);
-            localStorage.setItem("allUsers", JSON.stringify(allUsers));
-        }
-
-        setUser(existing);
-        localStorage.setItem("user", JSON.stringify(existing));
+    const login = (username: string, token: string) => {
+        localStorage.setItem("token", token);
+        setUser({
+            id: 0,
+            username,
+            role: username === "admin" ? "Admin" : "Member",
+            tenantId: 101,
+        });
     };
 
     const logout = () => {
+        localStorage.removeItem("token");
         setUser(null);
-        localStorage.removeItem("user");
     };
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (token) {
+            const username = parseJwtUsername(token);
+            if (username) {
+                setUser({
+                    id: 0,
+                    username,
+                    role: username === "admin" ? "Admin" : "Member",
+                    tenantId: 101,
+                });
+            }
+        }
+    }, []);
 
     return (
         <UserContext.Provider value={{ user, login, logout }}>
@@ -48,3 +42,13 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         </UserContext.Provider>
     );
 };
+
+
+function parseJwtUsername(token: string): string | null {
+    try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        return payload.sub || null;
+    } catch {
+        return null;
+    }
+}

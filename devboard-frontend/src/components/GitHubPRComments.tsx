@@ -30,21 +30,21 @@ export default function GitHubPRComments() {
         <div className="mt-8 p-4 border rounded-xl shadow bg-gray-50">
             <h3 className="text-lg font-semibold mb-4">GitHub PR Comments</h3>
 
-            <div className="flex flex-col sm:flex-row gap-2 mb-4">
+            <div className="flex flex-col gap-2 mb-4">
                 <input
-                    className="border px-2 py-1 rounded w-full sm:w-auto"
+                    className="border px-2 py-1 rounded"
                     placeholder="Owner (e.g. vercel)"
                     value={owner}
                     onChange={(e) => setOwner(e.target.value)}
                 />
                 <input
-                    className="border px-2 py-1 rounded w-full sm:w-auto"
+                    className="border px-2 py-1 rounded"
                     placeholder="Repo (e.g. next.js)"
                     value={repo}
                     onChange={(e) => setRepo(e.target.value)}
                 />
                 <input
-                    className="border px-2 py-1 rounded w-full sm:w-auto"
+                    className="border px-2 py-1 rounded"
                     placeholder="PR Number"
                     value={prNumber}
                     onChange={(e) => setPrNumber(e.target.value)}
@@ -57,6 +57,7 @@ export default function GitHubPRComments() {
                     {loading ? "Loading..." : "Fetch"}
                 </button>
             </div>
+
 
             {error && <p className="text-red-500 text-sm">{error}</p>}
 
