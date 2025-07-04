@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import api from "../api";
 import type { Task } from "../types";
 import CommentSection from "./CommentSection"; // ✅ 引入评论组件
+import GitHubPRComments from "./GitHubPRComments"; // ✅ 引入 GitHub 评论组件
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 dayjs.extend(relativeTime);
@@ -105,6 +106,11 @@ export default function TaskDetail() {
                 {/* ✅ 评论区 */}
                 <div className="pt-6 border-t">
                     <CommentSection taskId={task.id!} />
+                </div>
+
+                {/* ✅ GitHub PR 评论区 */}
+                <div className="pt-6 border-t">
+                    <GitHubPRComments />
                 </div>
             </div>
         </div>

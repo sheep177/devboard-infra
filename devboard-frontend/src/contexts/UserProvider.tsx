@@ -1,3 +1,5 @@
+// src/contexts/UserProvider.tsx
+
 import { useState, useEffect, type ReactNode } from "react";
 import { UserContext } from "./UserContext";
 import type { User } from "../types";

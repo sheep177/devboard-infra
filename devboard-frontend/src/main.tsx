@@ -1,13 +1,16 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App";
-import './index.css';
-import { UserProvider } from "./contexts/UserProvider"; // ✅ 只引入 Provider
+import AppWrapper from "./AppWrapper";
+import { UserProvider } from "./contexts/UserProvider";
+import { TaskProvider } from "./contexts/TaskContext";
+import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
         <UserProvider>
-            <App />
+            <TaskProvider>
+                <AppWrapper />
+            </TaskProvider>
         </UserProvider>
     </React.StrictMode>
 );

@@ -7,8 +7,10 @@ export default function TaskForm({ onTaskCreated }: { onTaskCreated: (task: Task
         title: "",
         status: "ToDo",
         priority: "Medium",
-        description: ""
+        description: "",
+        updatedAt: new Date().toISOString(),
     });
+
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -25,7 +27,14 @@ export default function TaskForm({ onTaskCreated }: { onTaskCreated: (task: Task
         try {
             const response = await api.post<Task>("/tasks", task);
             onTaskCreated(response.data);
-            setTask({ title: "", status: "ToDo", priority: "Medium", description: "" }); // ✅ 重置全部
+            setTask({
+                title: "",
+                status: "ToDo",
+                priority: "Medium",
+                description: "",
+                updatedAt: new Date().toISOString(), // ✅ 添加
+            });
+
         } catch (err) {
             console.error("Error creating task:", err);
             setError("❌ Failed to create task");
