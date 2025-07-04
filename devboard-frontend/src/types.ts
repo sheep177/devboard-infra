@@ -14,3 +14,11 @@ export interface User {
     role: "Admin" | "Member";
     tenantId: number;
 }
+export interface Comment {
+    id: number;
+    content: string;
+    userId: number;
+    taskId: number;
+    createdAt: string;
+}
+

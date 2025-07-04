@@ -25,6 +25,13 @@ public class CommentController {
     }
 
 
+    @GetMapping
+    public List<Comment> getAllComments() {
+        return commentRepo.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
+    }
+
+
+
     @GetMapping("/{taskId}")
     public Page<Comment> getCommentsPaged(
             @PathVariable Long taskId,

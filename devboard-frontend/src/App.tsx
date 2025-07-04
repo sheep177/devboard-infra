@@ -8,6 +8,7 @@ import AuthPanel from "./components/AuthPanel";
 import { useUser } from "./contexts/useUser";
 import { useTasks } from "./contexts/TaskContext";
 import BoardView from "./pages/BoardView";
+import AdminPanel from "./pages/AdminPanel";
 import type { Task } from "./types";
 
 function App() {
@@ -54,6 +55,17 @@ function App() {
                                     >
                                         🗂 View Board
                                     </button>
+
+                                    {/* ✅ 仅 Admin 显示 */}
+                                    {user.role === "Admin" && (
+                                        <button
+                                            onClick={() => navigate("/admin")}
+                                            className="text-green-600 text-xs underline hover:text-green-800"
+                                        >
+                                            🛡 Admin Panel
+                                        </button>
+                                    )}
+
                                     <button
                                         onClick={logout}
                                         className="text-red-500 text-xs underline hover:text-red-600"
@@ -157,6 +169,8 @@ function App() {
             />
             <Route path="/tasks/:id" element={<TaskDetail />} />
             <Route path="/board" element={<BoardView />} />
+            <Route path="/admin" element={<AdminPanel />} />
+
         </Routes>
     );
 }
