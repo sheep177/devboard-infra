@@ -101,7 +101,7 @@ public class CommentController {
 
         Comment existing = optional.get();
 
-        // 只允许作者编辑
+
         if (!existing.getUserId().equals(updated.getUserId())) {
             return ResponseEntity.status(403).body("❌ Not allowed to edit this comment");
         }
