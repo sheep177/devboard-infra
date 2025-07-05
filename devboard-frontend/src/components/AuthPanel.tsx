@@ -21,7 +21,7 @@ export default function AuthPanel() {
             });
 
             if (!isRegister) {
-                const token = res.data; // 后端返回的是 token 字符串
+                const token = res.data; // 后端返回的是 token 字符串111
                 login(username.trim(), token);
             } else {
                 alert("✅ Successful! Please Login");
