@@ -17,7 +17,7 @@ function App() {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const [error, setError] = useState("");
+    const [error] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
     const [filterStatus, setFilterStatus] = useState("All");
     const [filterPriority, setFilterPriority] = useState("All");

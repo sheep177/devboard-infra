@@ -30,17 +30,27 @@ export default function CommentThread({ comment }: { comment: Comment }) {
 
     const handleReply = async () => {
         if (!replyText.trim()) return;
-        const res = await api.post("/comments", {
-            content: replyText,
-            taskId: comment.taskId,
-            userId: user.id,
-            username: user.username,
-            parentId: comment.id,
-        });
-        setReplies([...replies, res.data]);
-        setReplyText("");
-        setReplying(false);
-        setShowReplies(true);
+        if (!user) {
+            alert("You must be logged in to reply.");
+            return;
+        }
+
+        try {
+            const res = await api.post("/comments", {
+                content: replyText,
+                taskId: comment.taskId,
+                userId: user.id,
+                username: user.username,
+                parentId: comment.id,
+            });
+            setReplies([...replies, res.data]);
+            setReplyText("");
+            setReplying(false);
+            setShowReplies(true);
+        } catch (err) {
+            console.error("Failed to post reply:", err);
+            alert("Reply failed.");
+        }
     };
 
     const toggleReplies = async () => {
@@ -50,15 +60,22 @@ export default function CommentThread({ comment }: { comment: Comment }) {
 
     const handleEdit = async () => {
         if (!editText.trim()) return;
+        if (!user) {
+            alert("You must be logged in to edit a comment.");
+            return;
+        }
+
         try {
             const res = await api.put(`/comments/${comment.id}`, {
                 content: editText,
                 userId: user.id,
             });
-            comment.content = res.data.content;
+
             setEditing(false);
+            setEditText(res.data.content); // 更新本地内容（可替代父组件传入 onEdit）
         } catch (err) {
             console.error("Failed to edit comment", err);
+            alert("Edit failed.");
         }
     };
 
@@ -87,13 +104,13 @@ export default function CommentThread({ comment }: { comment: Comment }) {
                     </div>
                 ) : (
                     <>
-                        <p className="text-gray-800">{comment.content}</p>
+                        <p className="text-gray-800">{editText}</p>
                         <div className="text-xs text-gray-500 mt-1 flex justify-between">
                             <span>
                                 <strong>{comment.username}</strong> · {new Date(comment.createdAt).toLocaleString()}
                             </span>
                             <div className="space-x-2">
-                                {user.id === comment.userId && (
+                                {user && user.id === comment.userId && (
                                     <button
                                         className="text-orange-500 hover:underline"
                                         onClick={() => setEditing(true)}
@@ -101,12 +118,14 @@ export default function CommentThread({ comment }: { comment: Comment }) {
                                         Edit
                                     </button>
                                 )}
-                                <button
-                                    className="text-blue-500 hover:underline"
-                                    onClick={() => setReplying(!replying)}
-                                >
-                                    Reply
-                                </button>
+                                {user && (
+                                    <button
+                                        className="text-blue-500 hover:underline"
+                                        onClick={() => setReplying(!replying)}
+                                    >
+                                        Reply
+                                    </button>
+                                )}
                                 <button
                                     className="text-gray-500 hover:underline"
                                     onClick={toggleReplies}

@@ -32,6 +32,12 @@ export default function CommentSection({ taskId }: { taskId: number }) {
 
     const handleAddTopComment = async () => {
         if (!newComment.trim()) return;
+        if (!user) {
+            console.error("User not logged in");
+            alert("You must be logged in to post a comment.");
+            return;
+        }
+
         setPosting(true);
         try {
             const res = await api.post("/comments", {
@@ -47,10 +53,12 @@ export default function CommentSection({ taskId }: { taskId: number }) {
             setNewComment("");
         } catch (err) {
             console.error("Failed to post", err);
+            alert("Failed to post comment.");
         } finally {
             setPosting(false);
         }
     };
+
 
     if (!user) {
         return <p className="text-red-500">Please log in to view or post comments.</p>;
