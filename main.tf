@@ -155,7 +155,7 @@ resource "aws_instance" "devboard_ec2" {
   instance_type               = "t2.micro"
   subnet_id                   = aws_subnet.main_subnet.id
   vpc_security_group_ids      = [aws_security_group.devboard_sg.id]
-  key_name                    = aws_key_pair.devboard_key.key_name
+  key_name = "devboard-new-key"
 
   tags = {
     Name = "devboard-ec2"
