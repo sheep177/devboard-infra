@@ -22,9 +22,11 @@ jobs:
         run: npm install
         working-directory: devboard-frontend
 
-      - name: Build frontend
-        run: npm run build
-        working-directory: devboard-frontend
+      - name: Build frontend with ts-node and vite
+        run: |
+          npm install -D ts-node esbuild --prefix devboard-frontend
+          cd devboard-frontend
+          NODE_OPTIONS="--loader ts-node/esm" npx vite build
 
       - name: Copy files to EC2
         uses: appleboy/scp-action@v0.1.4
