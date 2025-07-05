@@ -31,7 +31,6 @@ public class AuthController {
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        // ✅ 通过用户名判断是否是 admin
         user.setRole(user.getUsername().equals("admin") ? "Admin" : "Member");
 
         userRepository.save(user);
