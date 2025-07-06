@@ -29,8 +29,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ 启用 CORS
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // ✅ 允许注册/登录接口不验证
-                        .anyRequest().authenticated()
+                        .requestMatchers("/api/auth/**", "/api/tasks/**").permitAll() // ✅ 放行登录注册和任务列表（开发用）
+                        .anyRequest().authenticated() // 其它路径需 JWT
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // ✅ JWT过滤器
@@ -48,18 +48,18 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
-    // ✅ 添加跨域配置（对 register 有效）
+    // ✅ 跨域设置
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("https://stackflowy.com")); // ⬅️ 允许前端域名
+        config.setAllowedOrigins(List.of("https://stackflowy.com"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        config.setAllowCredentials(true); // 允许带 Cookie / Authorization
+        config.setAllowCredentials(true); // 必须开启，允许携带 JWT 等身份信息
         config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config); // 应用于所有路径
+        source.registerCorsConfiguration("/**", config);
         return source;
     }
 }
