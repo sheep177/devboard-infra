@@ -31,7 +31,9 @@ export default function AuthPanel() {
             setError("");
         } catch (err: any) {
             console.error("Auth error:", err);
-            if (err.response?.data) {
+            if (err.response?.data?.error) {
+                setError(err.response.data.error);
+            } else if (typeof err.response?.data === "string") {
                 setError(err.response.data);
             } else {
                 setError("Something went wrong. Please try again.");

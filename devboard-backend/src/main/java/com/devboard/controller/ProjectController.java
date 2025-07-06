@@ -1,0 +1,21 @@
+package com.devboard.controller;
+
+import com.devboard.model.Project;
+import com.devboard.service.ProjectService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/projects")
+@RequiredArgsConstructor
+public class ProjectController {
+
+    private final ProjectService projectService;
+
+    @PostMapping
+    public ResponseEntity<Project> createProject(@RequestParam String name) {
+        Project project = projectService.createProject(name);
+        return ResponseEntity.ok(project);
+    }
+}
