@@ -48,18 +48,18 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
-    // ✅ 跨域设置
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("https://stackflowy.com"));
+        config.setAllowedOrigins(List.of("https://stackflowy.com", "https://www.stackflowy.com"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        config.setAllowCredentials(true); // 必须开启，允许携带 JWT 等身份信息
+        config.setAllowCredentials(true);
         config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
     }
+
 }
