@@ -23,3 +23,16 @@ echo "📦 Copying new frontend files from $FRONTEND_DIST..."
 sudo cp -r $FRONTEND_DIST/* $NGINX_DIR/
 
 echo "✅ Deploy script completed."
+
+#!/bin/bash
+
+echo "🔄 Killing any process using port 8080..."
+fuser -k 8080/tcp || true
+
+echo "🚀 Starting new backend JAR..."
+cd /home/ubuntu/devboard-infra/devboard-backend
+
+nohup java -jar target/devboard-backend-0.0.1-SNAPSHOT.jar > backend.log 2>&1 &
+
+echo "✅ Backend deployment complete."
+
