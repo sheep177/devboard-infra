@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -79,7 +78,7 @@ public class TaskController {
 
 
     @DeleteMapping("/tasks/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
+    public ResponseEntity<Object> deleteTask(@PathVariable Long id) {
         // ✅ 获取当前用户
         User currentUser = AuthUtil.getCurrentUser();
 
@@ -94,6 +93,8 @@ public class TaskController {
                     taskRepository.delete(task);
                     return ResponseEntity.noContent().build(); // ✅ 删除成功，返回 204
                 })
-                .orElse(ResponseEntity.<Void>notFound().build()); // ✅ 未找到任务，返回 404
+                .orElse(ResponseEntity.status(404).build());
+
+
     }}
 
