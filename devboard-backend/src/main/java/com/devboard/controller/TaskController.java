@@ -42,8 +42,6 @@ public class TaskController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-
-    // ✅ 创建任务（需要确保前端传递正确的 projectId）
     @PostMapping("/tasks")
     public ResponseEntity<Task> createTask(@RequestBody Task task) {
         User currentUser = AuthUtil.getCurrentUser();
@@ -77,7 +75,6 @@ public class TaskController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-
     @DeleteMapping("/tasks/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
         User currentUser = AuthUtil.getCurrentUser();
@@ -86,12 +83,13 @@ public class TaskController {
             return ResponseEntity.status(403).build();
         }
 
-        return taskRepository.findById(id)
-                .<ResponseEntity<Void>>map(task -> {
-                    taskRepository.delete(task);
-                    return ResponseEntity.noContent().build();
-                })
-                .orElse(ResponseEntity.<Void>notFound().build());
+        Optional<Task> optionalTask = taskRepository.findById(id);
+        if (optionalTask.isPresent()) {
+            taskRepository.delete(optionalTask.get());
+            return ResponseEntity.noContent().build(); // 204
+        } else {
+            return ResponseEntity.status(404).build(); // 404
+        }
     }
-}
 
+}
