@@ -1,11 +1,22 @@
 #!/bin/bash
 
 echo "🔄 Stopping existing backend process..."
-sudo pkill -f 'java -jar'
+sudo pkill -f 'devboard-backend' || true
 
-echo "🚀 Starting new backend process..."
-cd ~/devboard-backend
+echo "📁 Entering backend directory..."
+cd ~/devboard-backend || { echo "❌ Failed to cd into ~/devboard-backend"; exit 1; }
+
+echo "🧱 Building backend..."
 ./mvnw clean package -DskipTests
 
-# 运行 jar 包（请替换为你的实际 jar 路径）
-nohup java -jar target/*.jar > backend.log 2>&1 &
+JAR_FILE=$(ls target/devboard-backend-*.jar | head -n 1)
+
+if [[ ! -f "$JAR_FILE" ]]; then
+  echo "❌ Build failed: JAR file not found in target/"
+  exit 1
+fi
+
+echo "🚀 Starting backend: $JAR_FILE"
+nohup java -jar "$JAR_FILE" > backend.log 2>&1 &
+
+echo "✅ Backend deployed at $(date)"
