@@ -80,20 +80,18 @@ public class TaskController {
 
     @DeleteMapping("/tasks/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
-        // ✅ 获取当前用户
         User currentUser = AuthUtil.getCurrentUser();
 
-        // ✅ 权限检查：当前用户是否有权删除该任务
         if (!tenantGuard.isMemberOfTask(id, currentUser)) {
-            return ResponseEntity.status(403).build(); // ❌ 禁止访问（不是成员）
+            return ResponseEntity.status(403).build();
         }
 
-        // ✅ 尝试查找并删除任务，返回对应状态
         return taskRepository.findById(id)
-                .map(task -> {
+                .<ResponseEntity<Void>>map(task -> {
                     taskRepository.delete(task);
-                    return ResponseEntity.noContent().build(); // ✅ 删除成功，返回 204
+                    return ResponseEntity.noContent().build();
                 })
-                .orElse(ResponseEntity.<Void>notFound().build()); // ✅ 未找到任务，返回 404
-    }}
+                .orElse(ResponseEntity.<Void>notFound().build()); // ✅ 泛型显式声明
+    }
+}
 
