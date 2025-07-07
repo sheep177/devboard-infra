@@ -1,6 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import type { Task } from "../types";
 import { useState } from "react";
+import { useProject } from "../contexts/ProjectContext";
+
 
 export default function TaskList({
                                      tasks,
@@ -26,6 +28,7 @@ export default function TaskList({
     onPageChange: (page: number) => void,
     sortBy?: string
 }) {
+    const { selectedProjectId } = useProject(); // ✅ 当前选中项目
     const navigate = useNavigate();
     const [sortBy, setSortBy] = useState<"updatedAt" | "createdAt" | "title" | "status">("updatedAt");
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
@@ -67,6 +70,7 @@ export default function TaskList({
     };
 
     const filteredTasks = tasks
+        .filter((task) => task.projectId === selectedProjectId)
         .filter((task) => filterPriority === "All" || task.priority === filterPriority)
         .filter((task) => filterStatus === "All" || task.status === filterStatus)
         .filter((task) => task.title.toLowerCase().includes(searchQuery.toLowerCase()))

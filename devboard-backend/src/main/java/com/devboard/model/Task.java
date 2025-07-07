@@ -28,6 +28,16 @@ public class Task {
 
     private LocalDateTime updatedAt;
 
+    private Long projectId;
+
+    public Long getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(Long projectId) {
+        this.projectId = projectId;
+    }
+
     @PrePersist
     public void onCreate() {
         this.createdAt = LocalDateTime.now();

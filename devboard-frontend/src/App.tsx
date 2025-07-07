@@ -10,6 +10,7 @@ import { useTasks } from "./contexts/TaskContext";
 import BoardView from "./pages/BoardView";
 import AdminPanel from "./pages/AdminPanel";
 import type { Task } from "./types";
+import ProjectSelector from "./components/ProjectSelector";
 
 function App() {
     const { user, logout } = useUser();
@@ -44,6 +45,7 @@ function App() {
                             <h1 className="text-2xl font-bold text-center mb-3 text-blue-600">
                                 DevBoard Task Manager
                             </h1>
+                            <ProjectSelector />
                             <div className="text-sm text-gray-600 text-center mb-6 flex justify-between items-center">
                                 <span>
                                     👋 Logged in as <strong>{user.username}</strong> ({user.role})

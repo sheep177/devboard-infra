@@ -1,6 +1,7 @@
 import { useState } from "react";
 import api from "../api";
 import type { Task } from "../types";
+import { useProject } from "../contexts/ProjectContext"; // ✅ 引入
 
 export default function TaskForm({ onTaskCreated }: { onTaskCreated: (task: Task) => void }) {
     const [task, setTask] = useState<Omit<Task, "id">>({
@@ -11,6 +12,7 @@ export default function TaskForm({ onTaskCreated }: { onTaskCreated: (task: Task
         updatedAt: new Date().toISOString(),
     });
 
+    const { selectedProjectId } = useProject(); // ✅ 获取 projectId
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -24,15 +26,25 @@ export default function TaskForm({ onTaskCreated }: { onTaskCreated: (task: Task
         setLoading(true);
         setError("");
 
+        if (!selectedProjectId) {
+            setError("❌ Please select a project first.");
+            setLoading(false);
+            return;
+        }
+
         try {
-            const response = await api.post<Task>("/tasks", task);
+            const response = await api.post<Task>("/tasks", {
+                ...task,
+                projectId: selectedProjectId, // ✅ 附加 projectId
+            });
+
             onTaskCreated(response.data);
             setTask({
                 title: "",
                 status: "ToDo",
                 priority: "Medium",
                 description: "",
-                updatedAt: new Date().toISOString(), // ✅ 添加
+                updatedAt: new Date().toISOString(),
             });
 
         } catch (err) {

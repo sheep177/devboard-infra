@@ -6,6 +6,7 @@ export interface Task {
     createdAt?: string;
     updatedAt: string;
     priority?: "Low" | "Medium" | "High";
+    projectId: number;
 }
 
 export interface User {

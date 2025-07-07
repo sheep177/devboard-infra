@@ -10,6 +10,8 @@ import com.devboard.security.AuthUtil; // ✅ 修改后的 import
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ProjectServiceImpl implements ProjectService {
@@ -32,4 +34,11 @@ public class ProjectServiceImpl implements ProjectService {
 
         return project;
     }
+    @Override
+    public List<Project> getProjectsForUser(User user) {
+        return projectMemberRepository.findByUser(user).stream()
+                .map(ProjectMember::getProject)
+                .toList();
+    }
+
 }
