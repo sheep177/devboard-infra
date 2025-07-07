@@ -22,7 +22,7 @@ jobs:
 
       - name: Install dependencies and build
         run: |
-          cd devboard-infra/devboard-frontend
+          cd devboard-frontend
           npm install
           npm run build
 
@@ -32,6 +32,6 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "devboard-infra/devboard-frontend/dist/*"
-          target: "/home/ubuntu/devboard-infra/devboard-frontend-dist"
-          strip_components: 2
+          source: "devboard-frontend/dist/*"
+          target: "/home/ubuntu/devboard-frontend-dist"
+          strip_components: 1
