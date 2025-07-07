@@ -1,22 +1,15 @@
 #!/bin/bash
 
 echo "🔄 Stopping existing backend process..."
-sudo pkill -f 'devboard-backend' || true
+sudo pkill -f 'java -jar'
 
-echo "📁 Entering project root directory..."
-cd ~/devboard-infra/devboard-backend || { echo "❌ Failed to cd"; exit 1; }
+echo "📁 Changing to real Maven backend directory..."
+cd ~/devboard-infra/devboard-backend
 
-echo "🧱 Building backend..."
+echo "🧱 Building backend JAR..."
 ./mvnw clean package -DskipTests
 
-JAR_FILE=$(ls target/devboard-backend-*.jar | head -n 1)
+echo "🚀 Starting new backend process..."
+nohup java -jar target/devboard-backend-0.0.1-SNAPSHOT.jar > ~/devboard-backend/backend.log 2>&1 &
 
-if [[ ! -f "$JAR_FILE" ]]; then
-  echo "❌ Build failed: JAR not found."
-  exit 1
-fi
-
-echo "🚀 Starting backend..."
-nohup java -jar "$JAR_FILE" > ~/devboard-backend/backend.log 2>&1 &
-
-echo "✅ Backend started with $JAR_FILE"
+echo "✅ Done. Check backend.log for startup info."
