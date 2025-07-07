@@ -15,22 +15,41 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Copy backend files to EC2
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 17
+
+      - name: Build backend JAR
+        run: |
+          cd devboard-backend
+          ./mvnw clean package -DskipTests
+
+      - name: Copy JAR to EC2
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "devboard-backend/*"
-          target: "/home/ubuntu/devboard-backend"
-          strip_components: 1
+          source: "devboard-backend/target/devboard-backend-0.0.1-SNAPSHOT.jar"
+          target: "/home/ubuntu/devboard-infra/devboard-backend/target"
 
-      - name: SSH into EC2 and deploy backend
+      - name: Copy deploy script to EC2
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "devboard-backend/deploy.sh"
+          target: "/home/ubuntu/devboard-infra/devboard-backend"
+
+      - name: Run deploy script on EC2
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            chmod +x ~/devboard-backend/deploy.sh
-            ~/devboard-backend/deploy.sh
+            chmod +x /home/ubuntu/devboard-infra/devboard-backend/deploy.sh
+            /home/ubuntu/devboard-infra/devboard-backend/deploy.sh
