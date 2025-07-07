@@ -8,7 +8,7 @@ pkill -f 'devboard-backend-0.0.1-SNAPSHOT.jar'
 
 echo "🚚 Moving backend jar to run directory..."
 cd ~/devboard-infra/devboard-backend
-mv target/devboard-backend-0.0.1-SNAPSHOT.jar app.jar
+mv target/devboard-backend/devboard-backend-0.0.1-SNAPSHOT.jar app.jar
 
 echo "🚀 Starting backend with nohup..."
 nohup java -jar app.jar > backend.log 2>&1 &
