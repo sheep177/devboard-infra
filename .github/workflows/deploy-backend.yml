@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'devboard-backend/**'
+      - 'devboard-infra/devboard-backend/**'
 
 jobs:
   deploy:
@@ -23,7 +23,7 @@ jobs:
 
       - name: Build backend JAR
         run: |
-          cd devboard-backend
+          cd devboard-infra/devboard-backend
           ./mvnw clean package -DskipTests
 
       - name: Copy JAR to EC2
@@ -32,7 +32,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "devboard-backend/target/devboard-backend-0.0.1-SNAPSHOT.jar"
+          source: "devboard-infra/devboard-backend/target/devboard-backend-0.0.1-SNAPSHOT.jar"
           target: "/home/ubuntu/devboard-infra/devboard-backend/target"
 
       - name: Copy deploy script to EC2
@@ -41,8 +41,9 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "devboard-backend/deploy.sh"
+          source: "devboard-infra/devboard-backend/deploy.sh"
           target: "/home/ubuntu/devboard-infra/devboard-backend"
+          strip_components: 1
 
       - name: Run deploy script on EC2
         uses: appleboy/ssh-action@v1.0.0
