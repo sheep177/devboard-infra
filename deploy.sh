@@ -1,31 +1,25 @@
 #!/bin/bash
 
-echo "🚀 Starting unified deploy script..."
+echo "🚀 Start unified deploy script..."
 
 # === 后端部分 ===
-
-echo "🔄 Killing old backend process using port 8080 (if any)..."
+echo "🔪 Killing any process using port 8080..."
 fuser -k 8080/tcp || true
 
-echo "📍 Navigating to backend directory..."
-cd /home/ubuntu/devboard-infra/devboard-backend
+echo "📦 Building backend..."
+cd ~/devboard-infra/devboard-backend
+./mvnw clean package -DskipTests
 
-echo "🚀 Starting backend JAR with nohup..."
+echo "🚀 Starting backend with nohup..."
 nohup java -jar target/devboard-backend-0.0.1-SNAPSHOT.jar > backend.log 2>&1 &
 
-echo "✅ Backend started."
-
 # === 前端部分 ===
-
-FRONTEND_DIST=/home/ubuntu/devboard-infra/devboard-frontend-dist
+FRONTEND_DIST=~/devboard-infra/devboard-frontend-dist
 NGINX_DIR=/var/www/devboard-frontend
 
-echo "🧹 Cleaning old frontend files from $NGINX_DIR..."
+echo "🧹 Cleaning old frontend files in $NGINX_DIR..."
 sudo rm -rf $NGINX_DIR/*
-
-echo "📦 Copying new frontend files from $FRONTEND_DIST to $NGINX_DIR..."
+echo "📤 Copying new frontend files from $FRONTEND_DIST..."
 sudo cp -r $FRONTEND_DIST/* $NGINX_DIR/
 
-echo "✅ Frontend deployed."
-
-echo "🎉 Deployment script finished successfully."
+echo "✅ Deployment completed."
