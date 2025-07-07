@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'devboard-infra/devboard-frontend/**'
+      - 'devboard-frontend/**'
 
 jobs:
   deploy:
