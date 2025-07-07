@@ -40,7 +40,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "devboard-infra/devboard-backend/target/devboard-backend-0.0.1-SNAPSHOT.jar"
+          source: "devboard-backend/target/devboard-backend-0.0.1-SNAPSHOT.jar"
           target: "/home/ubuntu/devboard-infra/devboard-backend/target"
 
       - name: Copy frontend dist to EC2
@@ -49,7 +49,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "devboard-infra/devboard-frontend/dist/*"
+          source: "devboard-frontend/dist/**"
           target: "/home/ubuntu/devboard-infra/devboard-frontend-dist"
           strip_components: 2
 
@@ -59,7 +59,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "devboard-infra/deploy.sh"
+          source: "deploy.sh"
           target: "/home/ubuntu/devboard-infra"
 
       - name: Run unified deploy script on EC2
