@@ -8,7 +8,7 @@ export default function CommentSection({ taskId }: { taskId: number }) {
     const { user } = useUser();
     const [topComments, setTopComments] = useState<Comment[]>([]);
     const [newComment, setNewComment] = useState("");
-    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc"); // 默认“最新优先”
+    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
     const [loading, setLoading] = useState(false);
     const [posting, setPosting] = useState(false);
 
