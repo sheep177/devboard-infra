@@ -8,6 +8,8 @@ public class DevBoardApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(DevBoardApplication.class, args);
+		System.out.println("🟢 Application started with CORS patch");
+
 	}
 
 }
