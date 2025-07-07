@@ -1,11 +1,12 @@
-HELP.md
+# === Build output ===
 target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+build/
+dist/
+
+# === Node ===
 node_modules
 
-### STS ###
+# === IDE ===
 .apt_generated
 .classpath
 .factorypath
@@ -14,21 +15,17 @@ node_modules
 .springBeans
 .sts4-cache
 
-### IntelliJ IDEA ###
 .idea
 *.iws
 *.iml
 *.ipr
 
-### NetBeans ###
+# === VS Code ===
+.vscode/
+
+# === NetBeans ===
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
-.vscode/
