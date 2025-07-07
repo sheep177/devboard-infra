@@ -1,6 +1,6 @@
 # DevBoard ✨
 
-This is a full-stack **multi-tenant task management platform** for developers and teams. Featuring Kanban board, comment system, role-based access control, and admin panel.
+A full-stack **multi-tenant task management platform** for developers and teams. Featuring Kanban board, comment system, role-based access control, and admin panel.
 
 ---
 
