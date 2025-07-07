@@ -91,7 +91,7 @@ public class TaskController {
                     taskRepository.delete(task);
                     return ResponseEntity.noContent().build();
                 })
-                .orElse(ResponseEntity.<Void>notFound().build()); // ✅ 泛型显式声明
+                .orElse(ResponseEntity.<Void>notFound().build());
     }
 }
 
