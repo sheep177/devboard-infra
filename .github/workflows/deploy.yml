@@ -1,0 +1,81 @@
+name: Deploy All to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 17
+
+      - name: Build backend
+        working-directory: devboard-infra/devboard-backend
+        run: ./mvnw clean package -DskipTests
+
+      - name: Copy backend JAR to EC2
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "devboard-infra/devboard-backend/target/devboard-backend-0.0.1-SNAPSHOT.jar"
+          target: "/home/ubuntu/devboard-infra/devboard-backend/target"
+
+      - name: Copy backend deploy script
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "devboard-infra/devboard-backend/deploy.sh"
+          target: "/home/ubuntu/devboard-infra/devboard-backend"
+          strip_components: 1
+
+      - name: Run backend deploy script
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            chmod +x /home/ubuntu/devboard-infra/devboard-backend/deploy.sh
+            /home/ubuntu/devboard-infra/devboard-backend/deploy.sh
+
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    needs: deploy-backend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Build frontend
+        working-directory: devboard-infra/devboard-frontend
+        run: |
+          npm install
+          npm run build
+
+      - name: Copy frontend files to EC2
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "devboard-infra/devboard-frontend/dist/*"
+          target: "/home/ubuntu/devboard-infra/devboard-frontend-dist"
+          strip_components: 2
