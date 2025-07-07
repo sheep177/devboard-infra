@@ -1,20 +1,19 @@
-// src/components/ProjectSelector.tsx
 import { useEffect, useState } from "react";
 import { useProject } from "../contexts/ProjectContext";
-
-// 假数据，后续用 api.get("/projects") 替换
-const mockProjects = [
-    { id: 1, name: "Design System" },
-    { id: 2, name: "Frontend Revamp" },
-    { id: 3, name: "Backend Refactor" },
-];
+import api from "../api"; // ✅ 引入 axios 实例
 
 export default function ProjectSelector() {
     const { selectedProjectId, setSelectedProjectId } = useProject();
     const [projects, setProjects] = useState<{ id: number; name: string }[]>([]);
 
     useEffect(() => {
-        setProjects(mockProjects); // 🚧 后续用 api 调用替换
+        api.get("/projects")
+            .then((res) => {
+                setProjects(res.data);
+            })
+            .catch((err) => {
+                console.error("❌ Failed to load projects:", err);
+            });
     }, []);
 
     return (
