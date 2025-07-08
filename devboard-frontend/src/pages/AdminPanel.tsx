@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ 添加
+import { useNavigate } from "react-router-dom";
 import api from "../api";
 import type { Task, Comment, User, Project } from "../types";
 
 export default function AdminPanel() {
-    const navigate = useNavigate(); // ✅ 添加
+    const navigate = useNavigate();
     const [tasks, setTasks] = useState<Task[]>([]);
     const [comments, setComments] = useState<Comment[]>([]);
     const [users, setUsers] = useState<User[]>([]);
-    const [projects, setProjects] = useState<Project[]>([]); // 新增项目状态
+    const [projects, setProjects] = useState<Project[]>([]);
+
     const [newUser, setNewUser] = useState({ username: "", password: "", role: "Member" });
-    const [newProjectName, setNewProjectName] = useState(""); // 新增项目名状态
+    const [newProjectName, setNewProjectName] = useState("");
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -21,7 +22,7 @@ export default function AdminPanel() {
                     api.get("/tasks"),
                     api.get("/comments"),
                     api.get("/users"),
-                    api.get("/projects"), // 请求项目列表
+                    api.get("/projects"),
                 ]);
                 setTasks(taskRes.data);
                 setComments(commentRes.data);
@@ -35,8 +36,6 @@ export default function AdminPanel() {
         };
         fetchData();
     }, []);
-
-    // 以下部分保持不变（删除任务、评论、用户，新增用户）
 
     const handleDeleteTask = async (id: number) => {
         if (!confirm("Are you sure you want to delete this task?")) return;
@@ -65,8 +64,6 @@ export default function AdminPanel() {
             alert("User creation failed. Username may already exist.");
         }
     };
-
-    // 新增项目相关逻辑
 
     const handleCreateProject = async () => {
         if (!newProjectName.trim()) {
@@ -194,7 +191,7 @@ export default function AdminPanel() {
                 </div>
             </section>
 
-            {/* 新增的项目管理部分 */}
+            {/* 项目管理部分 */}
             <section className="mb-8">
                 <h2 className="text-xl font-semibold mb-2">📁 Projects</h2>
                 {projects.map((proj) => (
