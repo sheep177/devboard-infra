@@ -4,7 +4,7 @@ import api from "../api";
 import type { Task, Comment, User, Project } from "../types";
 
 export default function AdminPanel() {
-    const navigate = useNavigate();
+    const navigate = useNavigate(); // ✅ 添加
     const [tasks, setTasks] = useState<Task[]>([]);
     const [comments, setComments] = useState<Comment[]>([]);
     const [users, setUsers] = useState<User[]>([]);
@@ -25,7 +25,7 @@ export default function AdminPanel() {
                 setTasks(taskRes.data);
                 setComments(commentRes.data);
                 setUsers(userRes.data);
-                setProjects(projectRes.data); // 设置项目列表
+                setProjects(projectRes.data);
             } catch (err) {
                 console.error("Failed to fetch admin data:", err);
             } finally {
@@ -35,28 +35,26 @@ export default function AdminPanel() {
         fetchData();
     }, []);
 
-    // 任务删除
+    // 以下部分保持不变（删除任务、评论、用户，新增用户）
+
     const handleDeleteTask = async (id: number) => {
         if (!confirm("Are you sure you want to delete this task?")) return;
         await api.delete(`/tasks/${id}`);
         setTasks((prev) => prev.filter((t) => t.id !== id));
     };
 
-    // 评论删除
     const handleDeleteComment = async (id: number) => {
         if (!confirm("Delete this comment?")) return;
         await api.delete(`/comments/${id}`);
         setComments((prev) => prev.filter((c) => c.id !== id));
     };
 
-    // 用户删除
     const handleDeleteUser = async (id: number) => {
         if (!confirm("Delete this user?")) return;
         await api.delete(`/users/${id}`);
         setUsers((prev) => prev.filter((u) => u.id !== id));
     };
 
-    // 新增用户
     const handleCreateUser = async () => {
         try {
             const res = await api.post("/users", newUser);
@@ -67,7 +65,8 @@ export default function AdminPanel() {
         }
     };
 
-    // 新增项目
+    // 新增项目相关逻辑
+
     const handleCreateProject = async () => {
         if (!newProjectName.trim()) {
             alert("Project name cannot be empty");
@@ -83,7 +82,6 @@ export default function AdminPanel() {
         }
     };
 
-    // 删除项目
     const handleDeleteProject = async (id: number) => {
         if (!confirm("Delete this project?")) return;
         try {
@@ -99,6 +97,7 @@ export default function AdminPanel() {
 
     return (
         <div className="p-8 max-w-4xl mx-auto">
+            {/* Back 按钮 */}
             <button
                 onClick={() => navigate("/")}
                 className="mb-6 text-sm text-blue-600 underline hover:text-blue-800"
@@ -194,7 +193,7 @@ export default function AdminPanel() {
                 </div>
             </section>
 
-            {/* 项目列表 */}
+            {/* 新增的项目管理部分 */}
             <section className="mb-8">
                 <h2 className="text-xl font-semibold mb-2">📁 Projects</h2>
                 {projects.map((proj) => (
