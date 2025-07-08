@@ -35,11 +35,12 @@ public class AuthController {
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
 
-        user.setRole("Admin");
+        user.setRole("ADMIN");
 
         userRepository.save(user);
         return ResponseEntity.ok("Registration successful");
     }
+
 
 
     @PostMapping("/login")

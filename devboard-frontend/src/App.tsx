@@ -59,7 +59,7 @@ function App() {
                                     </button>
 
                                     {/* ✅ 仅 Admin 显示 */}
-                                    {user.role === "Admin" && (
+                                    {user.role === "ADMIN" && (
                                         <button
                                             onClick={() => navigate("/admin")}
                                             className="text-green-600 text-xs underline hover:text-green-800"
@@ -75,6 +75,7 @@ function App() {
                                         Logout
                                     </button>
                                 </div>
+
                             </div>
 
                             <input

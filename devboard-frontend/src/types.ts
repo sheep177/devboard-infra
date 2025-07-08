@@ -9,12 +9,15 @@ export interface Task {
     projectId: number;
 }
 
+export type Role = "ADMIN" | "MEMBER";
+
 export interface User {
     id: number;
     username: string;
-    role: "Admin" | "Member";
+    role: Role;
     tenantId: number;
 }
+
 export interface Comment {
     id: number;
     content: string;

@@ -9,7 +9,7 @@ export default function AdminPanel() {
     const [comments, setComments] = useState<Comment[]>([]);
     const [users, setUsers] = useState<User[]>([]);
     const [projects, setProjects] = useState<Project[]>([]); // 新增项目状态
-    const [newUser, setNewUser] = useState({ username: "", password: "", role: "Member" });
+    const [newUser, setNewUser] = useState({ username: "", password: "", role: "MEMBER" });
     const [newProjectName, setNewProjectName] = useState(""); // 新增项目名状态
     const [loading, setLoading] = useState(true);
 
@@ -57,7 +57,7 @@ export default function AdminPanel() {
         try {
             const res = await api.post("/users", newUser);
             setUsers([...users, res.data]);
-            setNewUser({ username: "", password: "", role: "Member" });
+            setNewUser({ username: "", password: "", role: "MEMBER" });
         } catch (err) {
             alert("User creation failed. Username may already exist.");
         }
@@ -167,8 +167,8 @@ export default function AdminPanel() {
                         onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
                         className="w-full px-2 py-1 border rounded"
                     >
-                        <option value="Member">Member</option>
-                        <option value="Admin">Admin</option>
+                        <option value="MEMBER">Member</option>
+                        <option value="ADMIN">Admin</option>
                     </select>
                     <button
                         onClick={handleCreateUser}
