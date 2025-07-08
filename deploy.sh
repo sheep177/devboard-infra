@@ -2,6 +2,13 @@
 
 echo "🚀 Start unified deploy script..."
 
+# === 同步最新代码 ===
+echo "🌀 Pulling latest code from GitHub..."
+cd ~/devboard-infra
+git fetch --all
+git reset --hard origin/main
+git clean -fd
+
 # === 后端部分 ===
 echo "🔪 Killing any process using port 8080..."
 fuser -k 8080/tcp || true
