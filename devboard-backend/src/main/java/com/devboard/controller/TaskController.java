@@ -1,3 +1,4 @@
+// TaskController.java
 package com.devboard.controller;
 
 import com.devboard.model.Task;
@@ -23,7 +24,6 @@ public class TaskController {
         this.tenantGuard = tenantGuard;
     }
 
-    // 修改：只返回当前用户参与项目的任务
     @GetMapping("/tasks")
     public List<Task> getTasksForCurrentUser() {
         User currentUser = AuthUtil.getCurrentUser();
@@ -34,11 +34,9 @@ public class TaskController {
     @GetMapping("/tasks/{id}")
     public ResponseEntity<Task> getTaskById(@PathVariable Long id) {
         User currentUser = AuthUtil.getCurrentUser();
-
         if (!tenantGuard.isMemberOfTask(id, currentUser)) {
             return ResponseEntity.status(403).build();
         }
-
         return taskRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -48,31 +46,27 @@ public class TaskController {
     public ResponseEntity<Task> createTask(@RequestBody Task task) {
         User currentUser = AuthUtil.getCurrentUser();
         Long projectId = task.getProjectId();
-
         if (projectId == null || !tenantGuard.isMember(projectId, currentUser)) {
             return ResponseEntity.status(403).build();
         }
-
         Task saved = taskRepository.save(task);
         return ResponseEntity.ok(saved);
     }
 
     @PutMapping("/tasks/{id}")
-    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task updatedTask) {
+    public ResponseEntity<Task> updateTask(@PathVariable Long id,
+                                           @RequestBody Task updatedTask) {
         User currentUser = AuthUtil.getCurrentUser();
-
         if (!tenantGuard.isMemberOfTask(id, currentUser)) {
             return ResponseEntity.status(403).build();
         }
-
         return taskRepository.findById(id)
                 .map(task -> {
                     task.setTitle(updatedTask.getTitle());
                     task.setStatus(updatedTask.getStatus());
                     task.setDescription(updatedTask.getDescription());
                     task.setPriority(updatedTask.getPriority());
-                    Task savedTask = taskRepository.save(task);
-                    return ResponseEntity.ok(savedTask);
+                    return ResponseEntity.ok(taskRepository.save(task));
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -80,17 +74,14 @@ public class TaskController {
     @DeleteMapping("/tasks/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
         User currentUser = AuthUtil.getCurrentUser();
-
         if (!tenantGuard.isMemberOfTask(id, currentUser)) {
             return ResponseEntity.status(403).build();
         }
-
-        Optional<Task> optionalTask = taskRepository.findById(id);
-        if (optionalTask.isPresent()) {
-            taskRepository.delete(optionalTask.get());
+        Optional<Task> opt = taskRepository.findById(id);
+        if (opt.isPresent()) {
+            taskRepository.delete(opt.get());
             return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.status(404).build();
         }
+        return ResponseEntity.status(404).build();
     }
 }

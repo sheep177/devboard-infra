@@ -1,3 +1,4 @@
+// ProjectController.java
 package com.devboard.controller;
 
 import com.devboard.model.Project;
@@ -12,21 +13,27 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/projects")
-@RequiredArgsConstructor
 public class ProjectController {
 
     private final ProjectService projectService;
 
+    public ProjectController(ProjectService projectService) {
+        this.projectService = projectService;
+    }
+
     @PostMapping
     public ResponseEntity<Project> createProject(@RequestParam String name) {
-        User user = AuthUtil.getCurrentUser();
-        System.out.println("Create project called by user: " + user.getUsername() + " with role: " + user.getRole());
+        User user = AuthUtil.getCurrentUser(); // ✅ 静态调用，无需注入
+        System.out.println("Create project called by user: " + user.getUsername() +
+                " with role: " + user.getRole());
         Project project = projectService.createProject(name);
         return ResponseEntity.ok(project);
     }
+
     @GetMapping
     public ResponseEntity<List<Project>> getProjectsForCurrentUser() {
-        User user = AuthUtil.getCurrentUser();
+        User user = AuthUtil.getCurrentUser(); // ✅ 静态调用
         return ResponseEntity.ok(projectService.getProjectsForUser(user));
     }
 }
+
