@@ -23,3 +23,9 @@ export interface Comment {
     createdAt: string;
 }
 
+
+export interface Project {
+    id: number;
+    name: string;
+    createdAt?: string;
+}
