@@ -14,6 +14,7 @@ export default function AdminPanel() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        console.log("AdminPanel loaded projects:", projects);
         const fetchData = async () => {
             try {
                 const [taskRes, commentRes, userRes, projectRes] = await Promise.all([
