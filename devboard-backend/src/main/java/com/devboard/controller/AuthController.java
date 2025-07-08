@@ -31,14 +31,16 @@ public class AuthController {
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
             return ResponseEntity.status(409).body("Username already exists");
         }
-        System.out.println("Register raw password: " + user.getPassword());
+
         String encodedPassword = passwordEncoder.encode(user.getPassword());
-        System.out.println("Register encoded password: " + encodedPassword);
         user.setPassword(encodedPassword);
+
         user.setRole("Admin");
+
         userRepository.save(user);
         return ResponseEntity.ok("Registration successful");
     }
+
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User loginRequest) {

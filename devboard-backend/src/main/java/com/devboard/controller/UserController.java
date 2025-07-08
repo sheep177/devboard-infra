@@ -35,11 +35,14 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+
         user.setRole("Member");
+
         User saved = userRepo.save(user);
         saved.setPassword(null);
         return ResponseEntity.ok(saved);
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
