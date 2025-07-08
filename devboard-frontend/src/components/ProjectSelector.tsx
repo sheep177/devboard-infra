@@ -1,20 +1,8 @@
-import { useEffect, useState } from "react";
+// src/components/ProjectSelector.tsx
 import { useProject } from "../contexts/ProjectContext";
-import api from "../api"; // ✅ 引入 axios 实例
 
 export default function ProjectSelector() {
-    const { selectedProjectId, setSelectedProjectId } = useProject();
-    const [projects, setProjects] = useState<{ id: number; name: string }[]>([]);
-
-    useEffect(() => {
-        api.get("/projects")
-            .then((res) => {
-                setProjects(res.data);
-            })
-            .catch((err) => {
-                console.error("❌ Failed to load projects:", err);
-            });
-    }, []);
+    const { selectedProjectId, setSelectedProjectId, projects } = useProject();
 
     return (
         <div className="mb-4">

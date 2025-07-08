@@ -1,17 +1,21 @@
+// src/components/AdminPanel.tsx
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ 添加
+import { useNavigate } from "react-router-dom";
 import api from "../api";
-import type { Task, Comment, User, Project } from "../types"; // 加入 Project 类型
+import { useProject } from "../contexts/ProjectContext";
+import type { Task, Comment, User, Project } from "../types";
 
 export default function AdminPanel() {
-    const navigate = useNavigate(); // ✅ 添加
+    const navigate = useNavigate();
     const [tasks, setTasks] = useState<Task[]>([]);
     const [comments, setComments] = useState<Comment[]>([]);
     const [users, setUsers] = useState<User[]>([]);
-    const [projects, setProjects] = useState<Project[]>([]); // 新增项目状态
+    const [projects, setProjects] = useState<Project[]>([]);
     const [newUser, setNewUser] = useState({ username: "", password: "", role: "MEMBER" });
-    const [newProjectName, setNewProjectName] = useState(""); // 新增项目名状态
+    const [newProjectName, setNewProjectName] = useState("");
     const [loading, setLoading] = useState(true);
+
+    const { fetchProjects } = useProject(); // ✅ 获取全局更新方法
 
     useEffect(() => {
         const fetchData = async () => {
@@ -20,7 +24,7 @@ export default function AdminPanel() {
                     api.get("/tasks"),
                     api.get("/comments"),
                     api.get("/users"),
-                    api.get("/projects"), // 请求项目列表
+                    api.get("/projects"),
                 ]);
                 setTasks(taskRes.data);
                 setComments(commentRes.data);
@@ -63,15 +67,14 @@ export default function AdminPanel() {
         }
     };
 
-    // 这里是新增的创建项目逻辑
     const handleCreateProject = async () => {
         if (!newProjectName.trim()) {
             alert("Project name cannot be empty");
             return;
         }
         try {
-            const res = await api.post(`/projects?name=${encodeURIComponent(newProjectName)}`);
-            setProjects((prev) => [...prev, res.data]);
+            await api.post(`/projects?name=${encodeURIComponent(newProjectName)}`);
+            await fetchProjects(); // ✅ 自动刷新全局项目列表
             setNewProjectName("");
         } catch (err) {
             alert("Failed to create project");
@@ -83,7 +86,6 @@ export default function AdminPanel() {
 
     return (
         <div className="p-8 max-w-4xl mx-auto">
-            {/* Back 按钮 */}
             <button
                 onClick={() => navigate("/")}
                 className="mb-6 text-sm text-blue-600 underline hover:text-blue-800"
@@ -179,13 +181,12 @@ export default function AdminPanel() {
                 </div>
             </section>
 
-            {/* 新增项目管理部分 */}
+            {/* 项目管理 */}
             <section className="mb-8">
                 <h2 className="text-xl font-semibold mb-2">📁 Projects</h2>
                 {projects.map((proj) => (
                     <div key={proj.id} className="p-3 bg-gray-100 rounded mb-2 flex justify-between items-center">
                         <span>{proj.name}</span>
-                        {/* 如果需要删除项目按钮也可以加 */}
                     </div>
                 ))}
 
