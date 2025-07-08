@@ -28,7 +28,10 @@ public class AuthController {
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
             return ResponseEntity.status(409).body("Username already exists");
         }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        System.out.println("Register raw password: " + user.getPassword()); // 明文密码打印
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
+        System.out.println("Register encoded password: " + encodedPassword); // 加密后密码打印
+        user.setPassword(encodedPassword);
         user.setRole("Admin");
         User savedUser = userRepository.save(user);
         return ResponseEntity.ok("Registration successful");
@@ -39,11 +42,16 @@ public class AuthController {
         Optional<User> userOptional = userRepository.findByUsername(loginRequest.getUsername());
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            System.out.println("Login raw password: " + loginRequest.getPassword()); // 登录密码明文打印
+            System.out.println("Stored encoded password: " + user.getPassword()); // 数据库加密密码打印
+            boolean matches = passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
+            System.out.println("Password match result: " + matches); // 是否匹配
+            if (matches) {
                 String token = jwtUtil.generateToken(user.getUsername());
                 return ResponseEntity.ok().body(token);
             }
         }
         return ResponseEntity.status(401).body("Invalid credentials");
     }
+
 }
