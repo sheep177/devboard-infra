@@ -1,20 +1,32 @@
 import { useEffect, useState, type ReactNode } from "react";
 import type { User } from "../types";
 import { UserContext } from "./UserContext";
+import { jwtDecode } from "jwt-decode";
+
 
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
 
-    const login = (username: string, token: string) => {
+    interface JwtPayload {
+        sub: string; // username
+        role: "ADMIN" | "MEMBER";
+        exp: number;
+    }
+
+    const login = ( token: string) => {
         localStorage.setItem("token", token);
+
+        const payload = jwtDecode<JwtPayload>(token);
+
         setUser({
-            id: 0,
-            username,
-            role: username === "admin" ? "Admin" : "Member",
+            id: 0, // 可以改为后续真实 ID（未来从后端再查用户详情也行）
+            username: payload.sub,
+            role: payload.role,
             tenantId: 101,
         });
     };
+
 
     const logout = () => {
         localStorage.removeItem("token");
@@ -29,7 +41,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
                 setUser({
                     id: 0,
                     username,
-                    role: username === "admin" ? "Admin" : "Member",
+                    role: username === "admin" ? "ADMIN" : "MEMBER",
                     tenantId: 101,
                 });
             }

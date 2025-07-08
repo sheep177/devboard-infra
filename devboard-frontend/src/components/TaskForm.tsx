@@ -1,18 +1,18 @@
 import { useState } from "react";
 import api from "../api";
 import type { Task } from "../types";
-import { useProject } from "../contexts/ProjectContext"; // ✅ 引入
+import { useProject } from "../contexts/ProjectContext";
 
 export default function TaskForm({ onTaskCreated }: { onTaskCreated: (task: Task) => void }) {
+    const { selectedProjectId } = useProject();
     const [task, setTask] = useState<Omit<Task, "id">>({
         title: "",
         status: "ToDo",
         priority: "Medium",
         description: "",
         updatedAt: new Date().toISOString(),
+        projectId: selectedProjectId ?? 0, // ✅ 防止 null
     });
-
-    const { selectedProjectId } = useProject(); // ✅ 获取 projectId
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -45,7 +45,9 @@ export default function TaskForm({ onTaskCreated }: { onTaskCreated: (task: Task
                 priority: "Medium",
                 description: "",
                 updatedAt: new Date().toISOString(),
+                projectId: selectedProjectId ?? 0,
             });
+
 
         } catch (err) {
             console.error("Error creating task:", err);
