@@ -14,9 +14,11 @@ public class JwtUtil {
     private final Key key = Keys.hmacShaKeyFor(secret.getBytes());
     private final long expirationMillis = 1000 * 60 * 60 * 24; // 24 hours
 
-    public String generateToken(String username) {
+    // ✅ 改为带 role 参数
+    public String generateToken(String username, String role) {
         return Jwts.builder()
                 .setSubject(username)
+                .claim("role", role) // 加入角色信息
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationMillis))
                 .signWith(key)
@@ -32,6 +34,16 @@ public class JwtUtil {
                 .getSubject();
     }
 
+    // ✅ 可选：获取角色（如果需要）
+    public String extractRole(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("role", String.class);
+    }
+
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
@@ -45,5 +57,4 @@ public class JwtUtil {
         final String username = extractUsername(token);
         return username.equals(userDetails.getUsername()) && validateToken(token);
     }
-
 }

@@ -50,7 +50,7 @@ public class AuthController {
             boolean matches = passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
             System.out.println("Password match result: " + matches);
             if (matches) {
-                String token = jwtUtil.generateToken(user.getUsername());
+                String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
                 return ResponseEntity.ok(token);
             }
         }
