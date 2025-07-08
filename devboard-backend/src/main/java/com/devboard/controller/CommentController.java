@@ -20,6 +20,7 @@ public class CommentController {
     private final CommentRepository commentRepo;
     private final TenantGuard tenantGuard;
 
+
     public CommentController(CommentRepository commentRepo, TenantGuard tenantGuard) {
         this.commentRepo = commentRepo;
         this.tenantGuard = tenantGuard;
