@@ -29,6 +29,7 @@ public class UserController {
         if (userRepo.findByUsername(user.getUsername()).isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
+        user.setRole("Member");
         return ResponseEntity.ok(userRepo.save(user));
     }
 

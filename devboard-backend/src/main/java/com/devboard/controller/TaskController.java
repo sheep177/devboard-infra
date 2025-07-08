@@ -23,10 +23,12 @@ public class TaskController {
         this.tenantGuard = tenantGuard;
     }
 
-    // ✅ 获取所有任务（开发期开放，建议后期只按项目 ID 获取）
+    // 修改：只返回当前用户参与项目的任务
     @GetMapping("/tasks")
-    public List<Task> getAllTasks() {
-        return taskRepository.findAll();
+    public List<Task> getTasksForCurrentUser() {
+        User currentUser = AuthUtil.getCurrentUser();
+        List<Long> projectIds = tenantGuard.getProjectIdsForUser(currentUser);
+        return taskRepository.findByProjectIdIn(projectIds);
     }
 
     @GetMapping("/tasks/{id}")
@@ -86,10 +88,9 @@ public class TaskController {
         Optional<Task> optionalTask = taskRepository.findById(id);
         if (optionalTask.isPresent()) {
             taskRepository.delete(optionalTask.get());
-            return ResponseEntity.noContent().build(); // 204
+            return ResponseEntity.noContent().build();
         } else {
-            return ResponseEntity.status(404).build(); // 404
+            return ResponseEntity.status(404).build();
         }
     }
-
 }

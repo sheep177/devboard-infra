@@ -26,15 +26,12 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            return ResponseEntity.badRequest().body("Username already exists");
+            return ResponseEntity.status(409).body("Username already exists");
         }
-
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        user.setRole(user.getUsername().equals("admin") ? "Admin" : "Member");
-
-        userRepository.save(user);
-        return ResponseEntity.ok("User registered successfully");
+        user.setRole("Admin");
+        User savedUser = userRepository.save(user);
+        return ResponseEntity.ok("Registration successful");
     }
 
     @PostMapping("/login")
