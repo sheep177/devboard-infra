@@ -19,6 +19,8 @@ public class ProjectController {
 
     @PostMapping
     public ResponseEntity<Project> createProject(@RequestParam String name) {
+        User user = AuthUtil.getCurrentUser();
+        System.out.println("Create project called by user: " + user.getUsername() + " with role: " + user.getRole());
         Project project = projectService.createProject(name);
         return ResponseEntity.ok(project);
     }
