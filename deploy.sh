@@ -26,7 +26,8 @@ echo "🧱 Building frontend..."
 cd ~/devboard-infra/devboard-frontend
 rm -rf dist
 npm install
-npm run build
+echo "📦 Building with increased memory..."
+node --max-old-space-size=1024 ./node_modules/vite/bin/vite.js build
 
 FRONTEND_DIST=~/devboard-infra/devboard-frontend/dist
 NGINX_DIR=/var/www/devboard-frontend
