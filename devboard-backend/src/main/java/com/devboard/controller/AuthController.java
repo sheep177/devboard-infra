@@ -7,7 +7,7 @@ import com.devboard.security.JwtUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -42,21 +42,18 @@ public class AuthController {
     }
 
 
-
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User loginRequest) {
         Optional<User> userOptional = userRepository.findByUsername(loginRequest.getUsername());
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            System.out.println("Login raw password: " + loginRequest.getPassword());
-            System.out.println("Stored encoded password: " + user.getPassword());
             boolean matches = passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
-            System.out.println("Password match result: " + matches);
             if (matches) {
                 String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
-                return ResponseEntity.ok(token);
+                return ResponseEntity.ok(Map.of("token", token)); // ✅ 统一返回 JSON 格式
             }
         }
         return ResponseEntity.status(401).body("Invalid credentials");
     }
+
 }
