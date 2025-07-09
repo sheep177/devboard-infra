@@ -40,7 +40,7 @@ public class SecurityConfig {
                         .authenticated()
 
                         // 新增/删除项目只允许 Admin
-                        .requestMatchers(HttpMethod.POST, "/api/projects").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/projects").authenticated()
 
                         // 其他 API 只要登录即可访问
                         .anyRequest().authenticated()
