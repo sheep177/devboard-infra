@@ -1,5 +1,6 @@
 package com.devboard.controller;
 
+import com.devboard.dto.ProjectDto;
 import com.devboard.model.Project;
 import com.devboard.model.User;
 import com.devboard.security.AuthUtil;
@@ -28,8 +29,13 @@ public class ProjectController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Project>> getProjectsForCurrentUser() {
+    public ResponseEntity<List<ProjectDto>> getProjectsForCurrentUser() {
         User user = authUtil.getCurrentUser();
-        return ResponseEntity.ok(projectService.getProjectsForUser(user));
+        List<ProjectDto> dtoList = projectService.getProjectsForUser(user)
+                .stream()
+                .map(ProjectDto::new)
+                .toList();
+        return ResponseEntity.ok(dtoList);
     }
+
 }
