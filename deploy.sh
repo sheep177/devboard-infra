@@ -21,13 +21,13 @@ cd ~/devboard-infra/devboard-backend
 echo "🚀 Starting backend with nohup..."
 nohup java -jar target/devboard-backend-0.0.1-SNAPSHOT.jar > ~/devboard-infra/devboard-backend/backend.log 2>&1 &
 
-# === 前端部分 ===
+# === 前端部分1 ===
 echo "🧱 Building frontend..."
 cd ~/devboard-infra/devboard-frontend
 rm -rf dist
 npm install
 echo "📦 Building with increased memory..."
-node --max-old-space-size=1024 ./node_modules/vite/bin/vite.js build
+node --max-old-space-size=4096 ./node_modules/vite/bin/vite.js build
 
 FRONTEND_DIST=~/devboard-infra/devboard-frontend/dist
 NGINX_DIR=/var/www/devboard-frontend
