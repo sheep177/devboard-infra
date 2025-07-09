@@ -3,30 +3,25 @@ import type { User } from "../types";
 import { UserContext } from "./UserContext";
 import { jwtDecode } from "jwt-decode";
 
-
+interface JwtPayload {
+    sub: string; // username
+    role: "ADMIN" | "MEMBER";
+    exp: number;
+}
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
 
-    interface JwtPayload {
-        sub: string; // username
-        role: "ADMIN" | "MEMBER";
-        exp: number;
-    }
-
-    const login = ( token: string) => {
+    const login = (token: string) => {
         localStorage.setItem("token", token);
-
         const payload = jwtDecode<JwtPayload>(token);
-
         setUser({
-            id: 0, // 可以改为后续真实 ID（未来从后端再查用户详情也行）
+            id: 0,
             username: payload.sub,
             role: payload.role,
             tenantId: 101,
         });
     };
-
 
     const logout = () => {
         localStorage.removeItem("token");
@@ -36,14 +31,17 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (token) {
-            const username = parseJwtUsername(token);
-            if (username) {
+            try {
+                const payload = jwtDecode<JwtPayload>(token);
                 setUser({
                     id: 0,
-                    username,
-                    role: username === "admin" ? "ADMIN" : "MEMBER",
+                    username: payload.sub,
+                    role: payload.role,
                     tenantId: 101,
                 });
+            } catch (err) {
+                console.error("Failed to decode JWT:", err);
+                localStorage.removeItem("token");
             }
         }
     }, []);
@@ -54,13 +52,3 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         </UserContext.Provider>
     );
 };
-
-
-function parseJwtUsername(token: string): string | null {
-    try {
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        return payload.sub || null;
-    } catch {
-        return null;
-    }
-}

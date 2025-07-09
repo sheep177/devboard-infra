@@ -21,8 +21,8 @@ export default function AuthPanel() {
             });
 
             if (!isRegister) {
-                const token = res.data.token; // ✅ 正确解析后端返回的 token
-                login(token); // ✅ 只传 token，不传 username
+                const token = res.data.token;
+                login(token); // ✅ 不再传 username
             } else {
                 alert("✅ Successful! Please Login");
                 setIsRegister(false);
