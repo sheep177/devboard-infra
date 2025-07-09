@@ -21,8 +21,8 @@ export default function AuthPanel() {
             });
 
             if (!isRegister) {
-                const token = res.data.token; // 后端返回的是 token 字符串111
-                login(username.trim(), token);
+                const token = res.data.token; // ✅ 正确解析后端返回的 token
+                login(token); // ✅ 只传 token，不传 username
             } else {
                 alert("✅ Successful! Please Login");
                 setIsRegister(false);
