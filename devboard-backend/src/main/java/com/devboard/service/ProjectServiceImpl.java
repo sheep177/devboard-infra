@@ -5,8 +5,6 @@ import com.devboard.model.ProjectMember;
 import com.devboard.model.User;
 import com.devboard.repository.ProjectRepository;
 import com.devboard.repository.ProjectMemberRepository;
-import com.devboard.service.ProjectService;
-import com.devboard.security.AuthUtil; // ✅ 修改后的 import
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,8 +18,7 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectMemberRepository projectMemberRepository;
 
     @Override
-    public Project createProject(String name) {
-        User currentUser = AuthUtil.getCurrentUser();
+    public Project createProject(String name, User currentUser) {
         Project project = new Project();
         project.setName(name);
         projectRepository.save(project);
@@ -34,11 +31,11 @@ public class ProjectServiceImpl implements ProjectService {
 
         return project;
     }
+
     @Override
     public List<Project> getProjectsForUser(User user) {
         return projectMemberRepository.findByUser(user).stream()
                 .map(ProjectMember::getProject)
                 .toList();
     }
-
 }

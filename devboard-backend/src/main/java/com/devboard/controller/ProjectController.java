@@ -1,4 +1,3 @@
-// ProjectController.java
 package com.devboard.controller;
 
 import com.devboard.model.Project;
@@ -12,28 +11,25 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/projects")
 public class ProjectController {
 
     private final ProjectService projectService;
-
-    public ProjectController(ProjectService projectService) {
-        this.projectService = projectService;
-    }
+    private final AuthUtil authUtil;
 
     @PostMapping
     public ResponseEntity<Project> createProject(@RequestParam String name) {
-        User user = AuthUtil.getCurrentUser(); // ✅ 静态调用，无需注入
+        User user = authUtil.getCurrentUser();
         System.out.println("Create project called by user: " + user.getUsername() +
                 " with role: " + user.getRole());
-        Project project = projectService.createProject(name);
+        Project project = projectService.createProject(name, user);
         return ResponseEntity.ok(project);
     }
 
     @GetMapping
     public ResponseEntity<List<Project>> getProjectsForCurrentUser() {
-        User user = AuthUtil.getCurrentUser(); // ✅ 静态调用
+        User user = authUtil.getCurrentUser();
         return ResponseEntity.ok(projectService.getProjectsForUser(user));
     }
 }
-

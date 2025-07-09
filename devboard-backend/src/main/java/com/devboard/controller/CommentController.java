@@ -1,4 +1,3 @@
-// CommentController.java
 package com.devboard.controller;
 
 import com.devboard.dto.CommentDeleteRequest;
@@ -7,6 +6,7 @@ import com.devboard.model.User;
 import com.devboard.repository.CommentRepository;
 import com.devboard.security.AuthUtil;
 import com.devboard.security.TenantGuard;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,16 +16,12 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/comments")
-@CrossOrigin(origins = "http://localhost:5173")
+@RequiredArgsConstructor
 public class CommentController {
 
     private final CommentRepository commentRepo;
     private final TenantGuard tenantGuard;
-
-    public CommentController(CommentRepository commentRepo, TenantGuard tenantGuard) {
-        this.commentRepo = commentRepo;
-        this.tenantGuard = tenantGuard;
-    }
+    private final AuthUtil authUtil;
 
     @GetMapping
     public List<Comment> getAllComments() {
@@ -39,7 +35,7 @@ public class CommentController {
             @RequestParam(defaultValue = "5") int size,
             @RequestParam(defaultValue = "desc") String sort
     ) {
-        User currentUser = AuthUtil.getCurrentUser();
+        User currentUser = authUtil.getCurrentUser();
         if (!tenantGuard.isMemberOfTask(taskId, currentUser)) {
             return ResponseEntity.status(403).build();
         }
@@ -50,7 +46,7 @@ public class CommentController {
 
     @GetMapping("/{taskId}/all")
     public ResponseEntity<List<Comment>> getAllComments(@PathVariable Long taskId) {
-        User currentUser = AuthUtil.getCurrentUser();
+        User currentUser = authUtil.getCurrentUser();
         if (!tenantGuard.isMemberOfTask(taskId, currentUser)) {
             return ResponseEntity.status(403).build();
         }
@@ -62,7 +58,7 @@ public class CommentController {
             @PathVariable Long taskId,
             @RequestParam(defaultValue = "desc") String sort
     ) {
-        User currentUser = AuthUtil.getCurrentUser();
+        User currentUser = authUtil.getCurrentUser();
         if (!tenantGuard.isMemberOfTask(taskId, currentUser)) {
             return ResponseEntity.status(403).build();
         }
@@ -72,7 +68,7 @@ public class CommentController {
 
     @GetMapping("/replies/{parentId}")
     public ResponseEntity<List<Comment>> getReplies(@PathVariable Long parentId) {
-        User currentUser = AuthUtil.getCurrentUser();
+        User currentUser = authUtil.getCurrentUser();
         if (!tenantGuard.isMemberOfComment(parentId, currentUser)) {
             return ResponseEntity.status(403).build();
         }
@@ -81,7 +77,7 @@ public class CommentController {
 
     @PostMapping
     public ResponseEntity<?> addComment(@RequestBody Comment comment) {
-        User currentUser = AuthUtil.getCurrentUser();
+        User currentUser = authUtil.getCurrentUser();
         if (!tenantGuard.isMemberOfTask(comment.getTaskId(), currentUser)) {
             return ResponseEntity.status(403).body("❌ No permission to comment on this task");
         }
@@ -93,7 +89,7 @@ public class CommentController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id, @RequestBody CommentDeleteRequest req) {
-        User currentUser = AuthUtil.getCurrentUser();
+        User currentUser = authUtil.getCurrentUser();
         Optional<Comment> opt = commentRepo.findById(id);
         if (opt.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -114,7 +110,7 @@ public class CommentController {
             @PathVariable Long id,
             @RequestBody Comment updated
     ) {
-        User currentUser = AuthUtil.getCurrentUser();
+        User currentUser = authUtil.getCurrentUser();
         Optional<Comment> opt = commentRepo.findById(id);
         if (opt.isEmpty()) {
             return ResponseEntity.notFound().build();
