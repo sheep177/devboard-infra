@@ -16,19 +16,14 @@ public class AuthUtil {
     }
 
     public static User getCurrentUser() {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth.getPrincipal() == null) {
-            throw new RuntimeException("No authenticated user found.");
-        }
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        Object principal = auth.getPrincipal();
         if (principal instanceof UserDetails userDetails) {
             return staticUserRepository.findByUsername(userDetails.getUsername())
-                    .orElseThrow(() -> new RuntimeException("User not found in database: " + userDetails.getUsername()));
+                    .orElseThrow(() -> new RuntimeException("User not found: " + userDetails.getUsername()));
         }
 
-        throw new RuntimeException("Unknown principal type: " + principal.getClass().getName());
+        throw new RuntimeException("Unknown principal type: " + principal);
     }
-
 }
 
