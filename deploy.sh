@@ -10,7 +10,7 @@ git fetch --all
 git reset --hard origin/main
 git clean -fd
 
-# === 后端部分1 ===
+# === 后端部分2 ===
 echo "🔪 Killing any process using port 8080..."
 fuser -k 8080/tcp || true
 
