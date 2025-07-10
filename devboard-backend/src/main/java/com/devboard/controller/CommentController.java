@@ -65,6 +65,12 @@ public class CommentController {
         return commentRepository.findByTaskIdAndTenantIdAndParentIdIsNull(taskId, authUtil.getCurrentTenantId());
     }
 
+    @GetMapping("/task/{taskId}/tree")
+    public List<Comment> getAllCommentsTree(@PathVariable Long taskId) {
+        return commentRepository.findByTaskIdAndTenantId(taskId, authUtil.getCurrentTenantId());
+    }
+
+
 
 
 }
