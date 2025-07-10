@@ -32,23 +32,23 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // 登录 / 注册不用 token
-                        .requestMatchers("/api/auth/**").permitAll()
+                        // ✅ 显式放行 login / register
+                        .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
 
                         // 所有认证用户都可以查看项目列表
-                        .requestMatchers(HttpMethod.GET, "/api/projects/**")
-                        .authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/projects/**").authenticated()
 
                         // 新增/删除项目只允许 Admin
                         .requestMatchers(HttpMethod.POST, "/api/projects").hasRole("ADMIN")
 
-                        // 其他 API 只要登录即可访问
+                        // 其他请求要求认证
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
