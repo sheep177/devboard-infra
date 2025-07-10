@@ -34,9 +34,9 @@ public class AuthController {
         }
 
         if (userRepository.existsByTenantId(user.getTenantId())) {
-            System.out.println("❌ tenantId 已存在: " + user.getTenantId());
-            return ResponseEntity.status(403).body("Tenant ID already exists. Please choose a different one.");
+            return ResponseEntity.badRequest().body("Tenant ID already exists. Please choose a different one.");
         }
+
 
         user.setRole("ADMIN");
         user.setPassword(passwordEncoder.encode(user.getPassword()));
