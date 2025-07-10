@@ -86,7 +86,7 @@ export default function AdminPanel() {
             return;
         }
         try {
-            await api.post(`/projects?name=${encodeURIComponent(newProjectName)}`);
+            await api.post("/projects", { name: newProjectName }); // ✅ 传递 JSON 请求体
             await fetchProjects(); // ✅ 自动刷新全局项目列表
             setNewProjectName("");
         } catch (err) {
