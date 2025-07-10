@@ -1,21 +1,30 @@
 import { useState } from "react";
 import api from "../api";
 import { useUser } from "../contexts/useUser";
-import type { Comment } from "./CommentSection";
+
+export interface Comment {
+    id: number;
+    taskId: number;
+    content: string;
+    userId: number;
+    username: string;
+    createdAt: string;
+    parentId: number | null;
+}
 
 export default function CommentThread({ comment }: { comment: Comment }) {
     const { user } = useUser();
     const [replying, setReplying] = useState(false);
     const [replyText, setReplyText] = useState("");
     const [editing, setEditing] = useState(false);
-    const [editText, setEditText] = useState(comment.content);
+    const [editText, setEditText] = useState(comment?.content ?? "");
     const [childReplies, setChildReplies] = useState<Comment[]>([]);
     const [showReplies, setShowReplies] = useState(false);
 
     const fetchReplies = async () => {
         try {
             const res = await api.get(`/comments/replies/${comment.id}`);
-            setChildReplies(res.data);
+            setChildReplies(res.data ?? []);
         } catch (err) {
             console.error("Failed to load replies:", err);
         }
@@ -27,8 +36,7 @@ export default function CommentThread({ comment }: { comment: Comment }) {
     };
 
     const handleReply = async () => {
-        if (!replyText.trim()) return;
-        if (!user) return alert("You must be logged in to reply.");
+        if (!replyText.trim() || !user) return;
 
         try {
             const res = await api.post("/comments", {
@@ -62,6 +70,8 @@ export default function CommentThread({ comment }: { comment: Comment }) {
             alert("Edit failed.");
         }
     };
+
+    if (!comment) return null; // 安全防护
 
     return (
         <div className="ml-4 mt-3">

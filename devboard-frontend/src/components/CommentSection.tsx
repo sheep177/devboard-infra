@@ -1,10 +1,10 @@
-// src/components/CommentThread.tsx
+// src/components/CommentSection.tsx
 import { useEffect, useState } from "react";
 import api from "../api";
 import { useUser } from "../contexts/useUser";
+import CommentThread from "./CommentThread";
 
 export interface Comment {
-    replies?: Comment[];
     id: number;
     taskId: number;
     content: string;
@@ -14,150 +14,104 @@ export interface Comment {
     parentId: number | null;
 }
 
-export default function CommentThread({ comment }: { comment: Comment }) {
+export default function CommentSection({ taskId }: { taskId: number }) {
     const { user } = useUser();
-    const [replying, setReplying] = useState(false);
-    const [replyText, setReplyText] = useState("");
-    const [editing, setEditing] = useState(false);
-    const [editText, setEditText] = useState(comment.content);
-    const [childReplies, setChildReplies] = useState<Comment[]>([]);
-    const [showReplies, setShowReplies] = useState(false);
+    const [topComments, setTopComments] = useState<Comment[]>([]);
+    const [newComment, setNewComment] = useState("");
+    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+    const [loading, setLoading] = useState(false);
+    const [posting, setPosting] = useState(false);
 
-    const fetchReplies = async () => {
+    const fetchTopLevel = async () => {
+        setLoading(true);
         try {
-            const res = await api.get(`/comments/replies/${comment.id}`);
-            setChildReplies(res.data);
+            const res = await api.get(`/comments/${taskId}/top`, {
+                params: { sort: sortOrder },
+            });
+            setTopComments(res.data ?? []);
         } catch (err) {
-            console.error("Failed to load replies:", err);
+            console.error("Failed to load comments", err);
+        } finally {
+            setLoading(false);
         }
     };
 
-    const handleReply = async () => {
-        if (!replyText.trim()) return;
-        if (!user) return alert("You must be logged in to reply.");
+    useEffect(() => {
+        if (user) fetchTopLevel();
+    }, [taskId, user, sortOrder]);
 
+    const handleAddTopComment = async () => {
+        if (!newComment.trim()) return;
+        if (!user) {
+            alert("You must be logged in to post a comment.");
+            return;
+        }
+
+        setPosting(true);
         try {
             const res = await api.post("/comments", {
-                content: replyText,
-                taskId: comment.taskId,
+                content: newComment,
+                taskId,
                 userId: user.id,
                 username: user.username,
-                parentId: comment.id,
+                parentId: null,
             });
-            setChildReplies([...childReplies, res.data]);
-            setReplyText("");
-            setReplying(false);
-            setShowReplies(true);
+            setTopComments((prev) =>
+                sortOrder === "desc" ? [res.data, ...prev] : [...prev, res.data]
+            );
+            setNewComment("");
         } catch (err) {
-            console.error("Reply failed:", err);
-            alert("Reply failed.");
+            console.error("Failed to post comment:", err);
+            alert("Failed to post comment.");
+        } finally {
+            setPosting(false);
         }
     };
 
-    const handleEdit = async () => {
-        if (!editText.trim()) return;
-
-        try {
-            const res = await api.put(`/comments/${comment.id}`, {
-                content: editText,
-                userId: user?.id,
-            });
-            setEditText(res.data.content);
-            setEditing(false);
-        } catch (err) {
-            alert("Edit failed.");
-        }
-    };
-
-    const toggleReplies = async () => {
-        if (!showReplies) await fetchReplies();
-        setShowReplies((prev) => !prev);
-    };
+    if (!user) {
+        return <p className="text-red-500">Please log in to view or post comments.</p>;
+    }
 
     return (
-        <div className="ml-4 mt-3">
-            <div className="bg-gray-100 p-2 rounded text-sm shadow-sm">
-                {editing ? (
-                    <div className="mt-2 flex gap-2">
-                        <input
-                            value={editText}
-                            onChange={(e) => setEditText(e.target.value)}
-                            className="flex-grow px-2 py-1 border rounded text-sm"
-                        />
-                        <button
-                            onClick={handleEdit}
-                            className="bg-green-600 text-white px-3 py-1 rounded text-sm"
-                        >
-                            Save
-                        </button>
-                        <button
-                            onClick={() => setEditing(false)}
-                            className="text-gray-500 text-sm underline"
-                        >
-                            Cancel
-                        </button>
-                    </div>
-                ) : (
-                    <>
-                        <p className="text-gray-800">{editText}</p>
-                        <div className="text-xs text-gray-500 mt-1 flex justify-between">
-                            <span>
-                                <strong>{comment.username}</strong> · {new Date(comment.createdAt).toLocaleString()}
-                            </span>
-                            <div className="space-x-2">
-                                {user?.id === comment.userId && (
-                                    <button
-                                        className="text-orange-500 hover:underline"
-                                        onClick={() => setEditing(true)}
-                                    >
-                                        Edit
-                                    </button>
-                                )}
-                                {user && (
-                                    <button
-                                        className="text-blue-500 hover:underline"
-                                        onClick={() => setReplying(!replying)}
-                                    >
-                                        Reply
-                                    </button>
-                                )}
-                                <button
-                                    className="text-gray-500 hover:underline"
-                                    onClick={toggleReplies}
-                                >
-                                    {showReplies ? "Hide Replies" : "Show Replies"}
-                                </button>
-                            </div>
-                        </div>
-                    </>
-                )}
-
-                {replying && (
-                    <div className="mt-2 flex gap-2">
-                        <input
-                            type="text"
-                            value={replyText}
-                            onChange={(e) => setReplyText(e.target.value)}
-                            className="flex-grow px-2 py-1 border rounded text-sm"
-                            placeholder="Write a reply..."
-                        />
-                        <button
-                            onClick={handleReply}
-                            className="bg-blue-600 text-white px-3 py-1 rounded text-sm"
-                        >
-                            Send
-                        </button>
-                    </div>
-                )}
+        <div className="mt-6">
+            <div className="flex justify-between items-center mb-2">
+                <h3 className="text-sm font-semibold text-gray-700">💬 Comments</h3>
+                <button
+                    onClick={() =>
+                        setSortOrder((prev) => (prev === "desc" ? "asc" : "desc"))
+                    }
+                    className="text-blue-600 text-sm hover:underline"
+                >
+                    Sort: {sortOrder === "desc" ? "Newest First" : "Oldest First"}
+                </button>
             </div>
 
-            {showReplies && childReplies.length > 0 && (
-                <div className="mt-2 space-y-2">
-                    {childReplies.map((r) => (
-                        <CommentThread key={r.id} comment={r} />
+            {loading ? (
+                <p className="text-gray-400">Loading comments...</p>
+            ) : (
+                <div className="space-y-4">
+                    {topComments.map((c) => (
+                        <CommentThread key={c.id} comment={c} />
                     ))}
                 </div>
             )}
+
+            <div className="mt-4 flex gap-2">
+                <input
+                    type="text"
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    placeholder="Add a comment..."
+                    className="flex-grow px-3 py-1.5 border border-gray-300 rounded text-sm"
+                />
+                <button
+                    onClick={handleAddTopComment}
+                    disabled={posting}
+                    className="bg-blue-600 text-white px-4 py-1.5 rounded text-sm"
+                >
+                    {posting ? "Posting..." : "Post"}
+                </button>
+            </div>
         </div>
     );
 }
