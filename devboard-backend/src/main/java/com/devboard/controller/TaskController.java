@@ -63,4 +63,31 @@ public class TaskController {
         taskRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Task> patchTask(@PathVariable Long id, @RequestBody Task partialUpdate) {
+        Long tenantId = authUtil.getCurrentTenantId();
+        Optional<Task> optionalTask = taskRepository.findByIdAndTenantId(id, tenantId);
+        if (optionalTask.isEmpty()) return ResponseEntity.notFound().build();
+
+        Task task = optionalTask.get();
+
+        if (partialUpdate.getStatus() != null) {
+            task.setStatus(partialUpdate.getStatus());
+        }
+        if (partialUpdate.getTitle() != null) {
+            task.setTitle(partialUpdate.getTitle());
+        }
+        if (partialUpdate.getPriority() != null) {
+            task.setPriority(partialUpdate.getPriority());
+        }
+        if (partialUpdate.getDescription() != null) {
+            task.setDescription(partialUpdate.getDescription());
+        }
+
+        task.setUpdatedAt(java.time.LocalDateTime.now());
+
+        return ResponseEntity.ok(taskRepository.save(task));
+    }
+
 }
