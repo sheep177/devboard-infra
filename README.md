@@ -1,144 +1,182 @@
-# DevBoard ✨
+# 🚀 DevBoard – Multi-Tenant Developer Collaboration Platform
 
-A full-stack **multi-tenant task management platform** for developers and teams. Featuring Kanban board, comment system, role-based access control, and admin panel.
+DevBoard is a modern **multi-tenant developer collaboration platform**, designed to streamline task management, team coordination, and project tracking for software teams. With a clean UI, powerful admin features, and robust tenant isolation, DevBoard is ideal for distributed or growing teams.
 
----
+## 🧩 Features
 
-## 📄 Features
+https://www.stackflowy.com
 
-### ✅ General Users (Members)
+### ✅ Core Features
+- 🔐 **Multi-Tenant Isolation**: Each tenant has completely separate users, projects, and data.
+- 🧑‍💻 **User Roles**: Supports `Admin` and `Member` roles, with fine-grained access control.
+- 📋 **Task Management**: Create, edit, filter, and sort tasks by status, priority, or update time.
+- 🧵 **Comment System**: Add, delete, and reply to task-related comments with pagination.
+- 📌 **Project Selector**: Isolate task views and actions per project.
+- 🗂 **Board View** (Trello-style): Drag-and-drop tasks between columns (`ToDo`, `InProgress`, `Done`).
+- 🔍 **Search & Filter**: Real-time search and status filters.
+- 🌐 **Admin Panel**: Admins can manage all users, tasks, comments, and projects under their tenant.
 
-* Register / Login with JWT authentication
-* Create / edit / delete tasks
-* Filter by status (ToDo / In Progress / Done)
-* Filter by priority (Low / Medium / High)
-* Search tasks by keyword
-* Paginated task display
-* Sort tasks by title / status / priority / created / updated
-* View task details and comment
-* Comment editing / deletion (by self)
-* Kanban board (drag & drop between columns)
-
-### 🛡† Admin Users
-
-* Everything Members can do
-* Access to Admin Panel
-
-  * View & delete all tasks
-  * View & delete all comments
-  * View & delete members
+### 🛡️ Security & Permissions
+- JWT-based authentication
+- Role-based access (admin/member)
+- Full tenant validation for all operations (backend enforced)
 
 ---
 
-## ⚙️ Tech Stack
+## 🛠️ Tech Stack
 
 ### Frontend
-
-* React 19 + Vite
-* TypeScript
-* Tailwind CSS
-* @dnd-kit/core (for drag-and-drop Kanban)
+- React + TypeScript
+- Vite
+- TailwindCSS
+- @dnd-kit (for Kanban)
+- Axios
+- React Router
+- Context API
 
 ### Backend
-
-* Spring Boot (Java)
-* Spring Security + JWT
-* PostgreSQL
-* RESTful API with role-based access
+- Spring Boot (Java)
+- Spring Security + JWT
+- PostgreSQL (RDS)
+- JPA / Hibernate
+- Maven
 
 ### DevOps
-
-* API URL proxied via `/api`
-* CORS configured for local frontend (`localhost:5173`)
-* Uses React Context (UserContext + TaskContext) for global state
-
----
-
-## 🌐 Live Demo (if deployed)
-
-**Coming Soon** (or add your Render/Vercel link)
+- Terraform (AWS EC2, VPC, RDS)
+- GitHub Actions (CI/CD)
+- Nginx + Certbot (HTTPS)
+- EC2 hosting backend & frontend
 
 ---
 
-## 🔧 Getting Started
+## 🏗️ System Architecture
 
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/sheep177/devboard.git
-cd devboard
 ```
+               ┌────────────────────────────┐
+               │   Frontend (React + Vite)  │
+               └────────────┬───────────────┘
+                            │  Axios HTTP
+                            ▼
+               ┌────────────────────────────┐
+               │   Backend (Spring Boot)    │
+               └────────────┬───────────────┘
+                            │  JPA / REST API
+                            ▼
+               ┌────────────────────────────┐
+               │ PostgreSQL (AWS RDS)       │
+               └────────────┬───────────────┘
+                            │  provisioned by
+                            ▼
+               ┌────────────────────────────┐
+               │ AWS Infrastructure (IaC)   │
+               │    Terraform Managed       │
+               └────────────────────────────┘
+```
+
+
+---
+
+## 📦 Project Structure
+
+```
+devboard-frontend/
+├── public/
+├── src/
+│   ├── components/         # Reusable UI components (TaskCard, TaskForm, etc.)
+│   ├── contexts/           # React Contexts (UserContext, TaskContext)
+│   ├── pages/              # Route pages (MainPage, BoardView, AdminPanel)
+│   ├── types.ts            # Shared TypeScript interfaces
+│   └── main.tsx            # App entry
+├── index.html
+├── tailwind.config.js
+└── vite.config.ts
+
+devboard-backend/
+├── src/
+│   └── main/
+│       ├── java/com/devboard/
+│       │   ├── controller/     # REST Controllers
+│       │   ├── model/          # JPA Entities (User, Task, Comment, Project)
+│       │   ├── repository/     # JPA Repositories
+│       │   ├── security/       # JWT, AuthUtil, TenantGuard
+│       │   ├── service/        # Business logic
+│       │   └── DevboardBackendApplication.java
+│       └── resources/
+│           └── application.properties
+├── pom.xml                   # Maven config
+└── Dockerfile (optional)
+```
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the Repo
+
+git clone https://github.com/your-username/devboard.git
+cd devboard
 
 ### 2. Backend Setup
 
-```bash
 cd devboard-backend
 ./mvnw spring-boot:run
-```
 
-* Make sure PostgreSQL is running and configured in `application.properties`
-* Default port: `8080`
+Or build:
+
+./mvnw clean install
+java -jar target/devboard-backend-*.jar
+
+Set your `application.properties`:
+
+spring.datasource.url=jdbc:postgresql://<db-host>:5432/devboarddb
+spring.datasource.username=postgres
+spring.datasource.password=yourpassword
+jwt.secret=your-secret-key
 
 ### 3. Frontend Setup
 
-```bash
 cd devboard-frontend
 npm install
 npm run dev
-```
 
-* Runs at `http://localhost:5173`
+Visit http://localhost:5173
 
-### 4. Admin Login
-
-* Username: `admin`
-* Password: `admin`
 
 ---
 
-## 🖊† Architecture Overview
+## 🧪 Usage Flow
 
-```text
-React Frontend (Vite) —➔ REST API —➔ Spring Boot —➔ PostgreSQL
-                             ↳ /tasks
-                             ↳ /comments
-                             ↳ /auth/login, /auth/register
-                             ↳ /admin panel endpoints
-```
-
----
-
-## 👷 Roles & Permissions
-
-| Role   | Task CRUD | Comment  | Admin Panel |
-| ------ | --------- | -------- | ----------- |
-| Member | Yes       | Own only | No          |
-| Admin  | Yes       | All      | Yes         |
+- Register as admin (via `/register` with new tenantId)
+- Login to access AdminPanel
+- Create users (admin/member) under same tenant
+- Create projects
+- Create/manage tasks under project
+- Comment on tasks, view threaded replies
+- Drag & drop tasks in Board View (`/board`)
 
 ---
 
-## ✨ Highlights
+## 🔐 Tenant Policy
 
-* JWT-based stateless login system
-* Custom `TaskContext` and `UserContext` for global state management
-* Secure API endpoints (Spring Security filters)
-* Modular, scalable frontend architecture
-* Clean Tailwind UI
-* Drag-and-drop implemented with `@dnd-kit/core`
-* Pagination for performance
-
----
-
-## 📁 Future Improvements
-
-* Image/file attachments to tasks
-* Email notifications
-* Real-time updates via WebSocket
-* CI/CD deployment
-* User password reset flow
+| Action                    | Admin        | Member       |
+|--------------------------|--------------|--------------|
+| Register Tenant          | ✅ (/register) | ❌            |
+| Access Admin Panel       | ✅           | ❌            |
+| Create Users             | ✅ (same tenant) | ❌        |
+| CRUD Tasks/Projects      | ✅           | ✅            |
+| Comment & View Tasks     | ✅           | ✅            |
 
 ---
 
-## 🙌 Author
 
-Built with ❤️ by Ethan Z (ZiYang Zhou)
+## 📜 License
+
+This project is licensed under the MIT License. See `LICENSE` file for details.
+
+---
+
+## 👨‍💻 Author
+
+Built by ZiYang Zhou
+GitHub: https://github.com/sheep177/devboard-infra
+ or https://www.stackflowy.com
