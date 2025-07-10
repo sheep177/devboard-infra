@@ -29,11 +29,6 @@ public class UserController {
         this.jwtUtil = jwtUtil;
     }
 
-    @GetMapping
-    public List<User> getAllUsers() {
-        return userRepo.findAll();
-    }
-
     @PostMapping
     public ResponseEntity<?> createUser(@RequestBody User newUser, HttpServletRequest request) {
         String token = request.getHeader("Authorization");
