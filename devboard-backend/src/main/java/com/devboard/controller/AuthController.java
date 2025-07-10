@@ -1,4 +1,3 @@
-// ✅ AuthController.java
 package com.devboard.controller;
 
 import com.devboard.model.User;
@@ -26,17 +25,28 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody User user) {
+    public ResponseEntity<?> registerUser(@RequestBody User user) {
+        System.out.println("➡️ 注册请求 - 用户名: " + user.getUsername() + ", tenantId: " + user.getTenantId());
+
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            return ResponseEntity.badRequest().body("Username already exists");
+            System.out.println("❌ 用户名已存在");
+            return ResponseEntity.status(400).body("Username already exists");
         }
+
         if (userRepository.existsByTenantId(user.getTenantId())) {
-            return ResponseEntity.badRequest().body("Tenant ID already exists. Please choose a different one.");
+            System.out.println("❌ tenantId 已存在: " + user.getTenantId());
+            return ResponseEntity.status(403).body("Tenant ID already exists. Please choose a different one.");
         }
-        user.setRole("admin");
+
+        user.setRole("ADMIN");
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
-        return ResponseEntity.ok("User registered successfully");
+
+        System.out.println("✅ 用户注册成功: " + user.getUsername());
+
+        // 返回 JWT（可选，若你希望注册完直接登录）
+        String token = jwtUtil.generateToken(user);
+        return ResponseEntity.ok(Map.of("token", token));
     }
 
     @PostMapping("/login")
@@ -45,17 +55,23 @@ public class AuthController {
         String password = loginRequest.getPassword();
         Long tenantId = loginRequest.getTenantId();
 
+        System.out.println("➡️ 登录请求 - 用户名: " + username + ", tenantId: " + tenantId);
+
         Optional<User> optionalUser = userRepository.findByUsernameAndTenantId(username, tenantId);
         if (optionalUser.isEmpty()) {
+            System.out.println("❌ 用户不存在");
             return ResponseEntity.status(401).body("Invalid username or tenant ID");
         }
 
         User user = optionalUser.get();
         if (!passwordEncoder.matches(password, user.getPassword())) {
+            System.out.println("❌ 密码错误");
             return ResponseEntity.status(401).body("Invalid password");
         }
 
         String token = jwtUtil.generateToken(user);
+        System.out.println("✅ 登录成功，返回 token");
+
         return ResponseEntity.ok(Map.of("token", token));
     }
 }
