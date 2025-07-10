@@ -24,7 +24,6 @@ export interface Comment {
     userId: number;
     taskId: number;
     createdAt: string;
-    replies?: Comment[]; // ✅ 添加这一行
 }
 
 

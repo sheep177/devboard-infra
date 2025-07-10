@@ -9,7 +9,22 @@ export default function CommentThread({ comment }: { comment: Comment }) {
     const [replyText, setReplyText] = useState("");
     const [editing, setEditing] = useState(false);
     const [editText, setEditText] = useState(comment.content);
-    const [childReplies, setChildReplies] = useState<Comment[]>(comment.replies ?? []);
+    const [childReplies, setChildReplies] = useState<Comment[]>([]);
+    const [showReplies, setShowReplies] = useState(false);
+
+    const fetchReplies = async () => {
+        try {
+            const res = await api.get(`/comments/replies/${comment.id}`);
+            setChildReplies(res.data);
+        } catch (err) {
+            console.error("Failed to load replies:", err);
+        }
+    };
+
+    const toggleReplies = async () => {
+        if (!showReplies) await fetchReplies();
+        setShowReplies((prev) => !prev);
+    };
 
     const handleReply = async () => {
         if (!replyText.trim()) return;
@@ -23,9 +38,10 @@ export default function CommentThread({ comment }: { comment: Comment }) {
                 username: user.username,
                 parentId: comment.id,
             });
-            setChildReplies([...childReplies, res.data]);
+            setChildReplies((prev) => [...prev, res.data]);
             setReplyText("");
             setReplying(false);
+            setShowReplies(true);
         } catch (err) {
             console.error("Reply failed:", err);
             alert("Reply failed.");
@@ -94,6 +110,12 @@ export default function CommentThread({ comment }: { comment: Comment }) {
                                         Reply
                                     </button>
                                 )}
+                                <button
+                                    className="text-gray-500 hover:underline"
+                                    onClick={toggleReplies}
+                                >
+                                    {showReplies ? "Hide Replies" : "Show Replies"}
+                                </button>
                             </div>
                         </div>
                     </>
@@ -118,7 +140,7 @@ export default function CommentThread({ comment }: { comment: Comment }) {
                 )}
             </div>
 
-            {childReplies.length > 0 && (
+            {showReplies && childReplies.length > 0 && (
                 <div className="mt-2 space-y-2">
                     {childReplies.map((r) => (
                         <CommentThread key={r.id} comment={r} />
