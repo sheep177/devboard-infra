@@ -1,5 +1,5 @@
 // src/components/CommentThread.tsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import api from "../api";
 import { useUser } from "../contexts/useUser";
 
@@ -11,30 +11,29 @@ export interface Comment {
     username: string;
     createdAt: string;
     parentId: number | null;
-    replies?: Comment[];
 }
 
 export default function CommentThread({ comment }: { comment: Comment }) {
     const { user } = useUser();
-    const [showReplies, setShowReplies] = useState(false);
-    const [replies, setReplies] = useState<Comment[]>([]);
     const [replying, setReplying] = useState(false);
     const [replyText, setReplyText] = useState("");
-
     const [editing, setEditing] = useState(false);
     const [editText, setEditText] = useState(comment.content);
+    const [childReplies, setChildReplies] = useState<Comment[]>([]);
+    const [showReplies, setShowReplies] = useState(false);
 
     const fetchReplies = async () => {
-        const res = await api.get(`/comments/replies/${comment.id}`);
-        setReplies(res.data);
+        try {
+            const res = await api.get(`/comments/replies/${comment.id}`);
+            setChildReplies(res.data);
+        } catch (err) {
+            console.error("Failed to load replies:", err);
+        }
     };
 
     const handleReply = async () => {
         if (!replyText.trim()) return;
-        if (!user) {
-            alert("You must be logged in to reply.");
-            return;
-        }
+        if (!user) return alert("You must be logged in to reply.");
 
         try {
             const res = await api.post("/comments", {
@@ -44,40 +43,34 @@ export default function CommentThread({ comment }: { comment: Comment }) {
                 username: user.username,
                 parentId: comment.id,
             });
-            setReplies([...replies, res.data]);
+            setChildReplies([...childReplies, res.data]);
             setReplyText("");
             setReplying(false);
             setShowReplies(true);
         } catch (err) {
-            console.error("Failed to post reply:", err);
+            console.error("Reply failed:", err);
             alert("Reply failed.");
+        }
+    };
+
+    const handleEdit = async () => {
+        if (!editText.trim()) return;
+
+        try {
+            const res = await api.put(`/comments/${comment.id}`, {
+                content: editText,
+                userId: user?.id,
+            });
+            setEditText(res.data.content);
+            setEditing(false);
+        } catch (err) {
+            alert("Edit failed.");
         }
     };
 
     const toggleReplies = async () => {
         if (!showReplies) await fetchReplies();
         setShowReplies((prev) => !prev);
-    };
-
-    const handleEdit = async () => {
-        if (!editText.trim()) return;
-        if (!user) {
-            alert("You must be logged in to edit a comment.");
-            return;
-        }
-
-        try {
-            const res = await api.put(`/comments/${comment.id}`, {
-                content: editText,
-                userId: user.id,
-            });
-
-            setEditing(false);
-            setEditText(res.data.content); // 更新本地内容（可替代父组件传入 onEdit）
-        } catch (err) {
-            console.error("Failed to edit comment", err);
-            alert("Edit failed.");
-        }
     };
 
     return (
@@ -111,7 +104,7 @@ export default function CommentThread({ comment }: { comment: Comment }) {
                                 <strong>{comment.username}</strong> · {new Date(comment.createdAt).toLocaleString()}
                             </span>
                             <div className="space-x-2">
-                                {user && user.id === comment.userId && (
+                                {user?.id === comment.userId && (
                                     <button
                                         className="text-orange-500 hover:underline"
                                         onClick={() => setEditing(true)}
@@ -157,9 +150,9 @@ export default function CommentThread({ comment }: { comment: Comment }) {
                 )}
             </div>
 
-            {showReplies && replies.length > 0 && (
+            {showReplies && childReplies.length > 0 && (
                 <div className="mt-2 space-y-2">
-                    {replies.map((r) => (
+                    {childReplies.map((r) => (
                         <CommentThread key={r.id} comment={r} />
                     ))}
                 </div>
