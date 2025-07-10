@@ -4,6 +4,7 @@ import api from "../api";
 import { useUser } from "../contexts/useUser";
 
 export interface Comment {
+    replies?: Comment[];
     id: number;
     taskId: number;
     content: string;
