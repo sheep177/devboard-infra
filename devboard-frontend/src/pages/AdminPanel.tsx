@@ -67,12 +67,13 @@ export default function AdminPanel() {
                 return;
             }
 
-            const res = await api.post("/users", {
+            await api.post("/users", {
                 ...newUser,
-                tenantId: user.tenantId, // ✅ 自动附加当前租户
+                tenantId: user.tenantId,
             });
+            const res = await api.get("/users");
+            setUsers(res.data); // ✅ 重新拉取最新用户列表（只会是当前租户）
 
-            setUsers([...users, res.data]);
             setNewUser({ username: "", password: "", role: "MEMBER" });
         } catch (err) {
             alert("User creation failed. Username may already exist.");
@@ -86,14 +87,16 @@ export default function AdminPanel() {
             return;
         }
         try {
-            await api.post("/projects", { name: newProjectName }); // ✅ 传递 JSON 请求体
-            await fetchProjects(); // ✅ 自动刷新全局项目列表
+            const res = await api.post("/projects", { name: newProjectName });
+            await fetchProjects();
+            setProjects([...projects, res.data]);
             setNewProjectName("");
         } catch (err) {
             alert("Failed to create project");
             console.error(err);
         }
     };
+
 
     if (loading) return <p className="text-center p-8">Loading admin data...</p>;
 
