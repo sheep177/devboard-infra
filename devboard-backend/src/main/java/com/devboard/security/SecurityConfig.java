@@ -41,6 +41,9 @@ public class SecurityConfig {
                         // 新增/删除项目只允许 Admin
                         .requestMatchers(HttpMethod.POST, "/api/projects").hasRole("ADMIN")
 
+                        .requestMatchers(HttpMethod.PATCH, "/api/tasks/**").authenticated()
+
+
                         // 其他请求要求认证
                         .anyRequest().authenticated()
                 )
@@ -54,7 +57,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("https://stackflowy.com", "https://www.stackflowy.com"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);
@@ -82,7 +85,7 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         config.setAllowedOrigins(List.of("https://stackflowy.com", "https://www.stackflowy.com"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         config.setMaxAge(3600L);
         src.registerCorsConfiguration("/**", config);
