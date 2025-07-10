@@ -1,14 +1,13 @@
+// ✅ TaskRepository.java（多租户查询接口）
 package com.devboard.repository;
 
 import com.devboard.model.Task;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
-@Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
-
-    // 新增方法，按项目ID列表查询任务
-    List<Task> findByProjectIdIn(List<Long> projectIds);
+    List<Task> findByTenantId(Long tenantId);
+    Optional<Task> findByIdAndTenantId(Long id, Long tenantId);
 }

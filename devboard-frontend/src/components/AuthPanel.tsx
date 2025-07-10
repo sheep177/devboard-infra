@@ -6,6 +6,7 @@ export default function AuthPanel() {
     const { login } = useUser();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [tenantId, setTenantId] = useState(""); // ⬅️ 新增状态
     const [isRegister, setIsRegister] = useState(false);
     const [error, setError] = useState("");
 
@@ -18,11 +19,12 @@ export default function AuthPanel() {
             const res = await api.post(endpoint, {
                 username: username.trim(),
                 password,
+                ...(isRegister ? { tenantId: Number(tenantId) } : {}),
             });
 
             if (!isRegister) {
                 const token = res.data.token;
-                login(token); // ✅ 不再传 username
+                login(token);
             } else {
                 alert("✅ Successful! Please Login");
                 setIsRegister(false);
@@ -58,6 +60,7 @@ export default function AuthPanel() {
                     onChange={(e) => setUsername(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
+
                 <input
                     type="password"
                     placeholder="Password"
@@ -65,15 +68,28 @@ export default function AuthPanel() {
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
+
+                {isRegister && (
+                    <input
+                        type="number"
+                        placeholder="Tenant ID (new only)"
+                        value={tenantId}
+                        onChange={(e) => setTenantId(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                )}
+
                 {error && (
                     <p className="text-sm text-red-500 text-center">{error}</p>
                 )}
+
                 <button
                     type="submit"
                     className="w-full py-2 text-white font-semibold rounded bg-blue-600 hover:bg-blue-700 transition"
                 >
                     {isRegister ? "Register" : "Login"}
                 </button>
+
                 <p className="text-sm text-gray-500 text-center">
                     {isRegister ? (
                         <>

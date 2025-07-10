@@ -6,37 +6,31 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Getter
 @Entity
+@Getter
+@Setter
 public class Task {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Setter
     private String title;
 
-    @Setter
     private String status;
 
-    @Setter
     @Column(length = 1000)
     private String description;
+
+    private String priority = "Medium";
+
+    private Long projectId;
 
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
 
-    private Long projectId;
-
-    public Long getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
-    }
+    private Long tenantId; // ✅ 新增：用于多租户隔离
 
     @PrePersist
     public void onCreate() {
@@ -48,17 +42,4 @@ public class Task {
     public void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-
-    private String priority = "Medium";
-
-    public void setPriority(String priority) {
-        this.priority = priority;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    // Getter & Setter 省略只保留必要的：
-
 }

@@ -2,8 +2,8 @@
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import { TaskProvider } from "./contexts/TaskContext";
-import { UserProvider } from "./contexts/UserProvider";
 import { ProjectProvider } from "./contexts/ProjectContext";
+import { UserProvider } from "./contexts/UserProvider";
 
 export default function AppWrapper() {
     return (

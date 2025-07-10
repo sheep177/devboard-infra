@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../api";
 import { useProject } from "../contexts/ProjectContext";
 import type { Task, Comment, User, Project } from "../types";
+import {useUser} from "../contexts/useUser.ts";
 
 export default function AdminPanel() {
     const navigate = useNavigate();
@@ -57,15 +58,27 @@ export default function AdminPanel() {
         setUsers((prev) => prev.filter((u) => u.id !== id));
     };
 
+    const { user } = useUser(); // ✅ 引入当前用户
+
     const handleCreateUser = async () => {
         try {
-            const res = await api.post("/users", newUser);
+            if (!user) {
+                alert("Current user info not loaded.");
+                return;
+            }
+
+            const res = await api.post("/users", {
+                ...newUser,
+                tenantId: user.tenantId, // ✅ 自动附加当前租户
+            });
+
             setUsers([...users, res.data]);
             setNewUser({ username: "", password: "", role: "MEMBER" });
         } catch (err) {
             alert("User creation failed. Username may already exist.");
         }
     };
+
 
     const handleCreateProject = async () => {
         if (!newProjectName.trim()) {

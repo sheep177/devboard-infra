@@ -1,41 +1,45 @@
+// ✅ ProjectController.java（多租户逻辑）
 package com.devboard.controller;
 
-import com.devboard.dto.ProjectDto;
 import com.devboard.model.Project;
-import com.devboard.model.User;
+import com.devboard.repository.ProjectRepository;
 import com.devboard.security.AuthUtil;
-import com.devboard.service.ProjectService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/projects")
 public class ProjectController {
 
-    private final ProjectService projectService;
+    private final ProjectRepository projectRepository;
     private final AuthUtil authUtil;
 
-    @PostMapping
-    public ResponseEntity<Project> createProject(@RequestParam String name) {
-        User user = authUtil.getCurrentUser();
-        System.out.println("Create project called by user: " + user.getUsername() +
-                " with role: " + user.getRole());
-        Project project = projectService.createProject(name, user);
-        return ResponseEntity.ok(project);
+    public ProjectController(ProjectRepository projectRepository, AuthUtil authUtil) {
+        this.projectRepository = projectRepository;
+        this.authUtil = authUtil;
     }
 
     @GetMapping
-    public ResponseEntity<List<ProjectDto>> getProjectsForCurrentUser() {
-        User user = authUtil.getCurrentUser();
-        List<ProjectDto> dtoList = projectService.getProjectsForUser(user)
-                .stream()
-                .map(ProjectDto::new)
-                .toList();
-        return ResponseEntity.ok(dtoList);
+    public List<Project> getAllProjects() {
+        Long tenantId = authUtil.getCurrentTenantId();
+        return projectRepository.findByTenantId(tenantId);
     }
 
+    @PostMapping
+    public Project createProject(@RequestBody Project project) {
+        project.setTenantId(authUtil.getCurrentTenantId());
+        return projectRepository.save(project);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
+        Long tenantId = authUtil.getCurrentTenantId();
+        Optional<Project> project = projectRepository.findByIdAndTenantId(id, tenantId);
+        if (project.isEmpty()) return ResponseEntity.notFound().build();
+        projectRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
 }

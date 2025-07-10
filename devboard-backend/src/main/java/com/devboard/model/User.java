@@ -21,4 +21,7 @@ public class User {
     private String password;
 
     private String role = "MEMBER";
+
+    @Column(nullable = false)
+    private Long tenantId;
 }

@@ -1,49 +1,43 @@
-import { useEffect, useState, type ReactNode } from "react";
-import type { User } from "../types";
-import { UserContext } from "./UserContext";
+// src/contexts/UserProvider.tsx
+import { useState, useEffect, type ReactNode } from "react";
 import { jwtDecode } from "jwt-decode";
+import { UserContext, type User } from "./UserContext";
 
-interface JwtPayload {
-    sub: string; // username
-    role: "ADMIN" | "MEMBER";
+interface DecodedToken {
+    sub: string;       // username
+    role: string;      // "ADMIN" or "MEMBER"
+    tenantId: number;
     exp: number;
 }
 
-export const UserProvider = ({ children }: { children: ReactNode }) => {
+export function UserProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
 
     const login = (token: string) => {
-        localStorage.setItem("token", token);
-        const payload = jwtDecode<JwtPayload>(token);
-        setUser({
-            id: 0,
-            username: payload.sub,
-            role: payload.role,
-            tenantId: 101,
-        });
+        try {
+            const decoded = jwtDecode<DecodedToken>(token);
+            const newUser: User = {
+                username: decoded.sub,
+                role: decoded.role,
+                tenantId: decoded.tenantId,
+                token,
+            };
+            setUser(newUser);
+            localStorage.setItem("token", token);
+        } catch (err) {
+            console.error("JWT decode failed:", err);
+            logout();
+        }
     };
 
     const logout = () => {
-        localStorage.removeItem("token");
         setUser(null);
+        localStorage.removeItem("token");
     };
 
     useEffect(() => {
         const token = localStorage.getItem("token");
-        if (token) {
-            try {
-                const payload = jwtDecode<JwtPayload>(token);
-                setUser({
-                    id: 0,
-                    username: payload.sub,
-                    role: payload.role,
-                    tenantId: 101,
-                });
-            } catch (err) {
-                console.error("Failed to decode JWT:", err);
-                localStorage.removeItem("token");
-            }
-        }
+        if (token) login(token);
     }, []);
 
     return (
@@ -51,4 +45,4 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
             {children}
         </UserContext.Provider>
     );
-};
+}

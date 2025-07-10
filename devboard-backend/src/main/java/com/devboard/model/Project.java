@@ -23,4 +23,7 @@ public class Project {
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private List<ProjectMember> members = new ArrayList<>();
+
+    @Column(nullable = false)
+    private Long tenantId;
 }

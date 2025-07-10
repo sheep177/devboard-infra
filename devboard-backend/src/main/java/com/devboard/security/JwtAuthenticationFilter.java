@@ -1,3 +1,4 @@
+// ✅ JwtAuthenticationFilter.java
 package com.devboard.security;
 
 import jakarta.servlet.FilterChain;
@@ -40,36 +41,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String username;
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            System.out.println("❌ No Authorization header or invalid format");
             filterChain.doFilter(request, response);
             return;
         }
 
         jwt = authHeader.substring(7);
         username = jwtUtil.extractUsername(jwt);
-        System.out.println("🔑 Extracted username from JWT: " + username);
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            System.out.println("🔍 Loaded user from DB: " + userDetails.getUsername());
 
-            if (jwtUtil.isTokenValid(jwt, userDetails)) {
-                System.out.println("✅ Token is valid");
-
+            if (jwtUtil.validateToken(jwt)) {
                 String role = jwtUtil.extractRole(jwt);
-                List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
+                Long tenantId = jwtUtil.extractTenantId(jwt);
 
+                request.setAttribute("tenantId", tenantId); // ✅ 注入当前请求作用域
+
+                List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, authorities);
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
-            } else {
-                System.out.println("❌ Token is invalid");
             }
         }
 
-
         filterChain.doFilter(request, response);
-    }}
-
+    }
+}

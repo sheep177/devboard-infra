@@ -1,4 +1,4 @@
-// AuthController.java
+// ✅ AuthController.java
 package com.devboard.controller;
 
 import com.devboard.model.User;
@@ -7,6 +7,7 @@ import com.devboard.security.JwtUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.Map;
 import java.util.Optional;
 
@@ -15,45 +16,46 @@ import java.util.Optional;
 public class AuthController {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthController(UserRepository userRepository,
-                          PasswordEncoder passwordEncoder,
-                          JwtUtil jwtUtil) {
+    public AuthController(UserRepository userRepository, JwtUtil jwtUtil, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
+    public ResponseEntity<String> registerUser(@RequestBody User user) {
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            return ResponseEntity.status(409).body("Username already exists");
+            return ResponseEntity.badRequest().body("Username already exists");
         }
-
-        String encodedPassword = passwordEncoder.encode(user.getPassword());
-        user.setPassword(encodedPassword);
-
-        user.setRole("ADMIN");
-
+        if (userRepository.existsByTenantId(user.getTenantId())) {
+            return ResponseEntity.badRequest().body("Tenant ID already exists. Please choose a different one.");
+        }
+        user.setRole("admin");
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
-        return ResponseEntity.ok("Registration successful");
+        return ResponseEntity.ok("User registered successfully");
     }
-
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User loginRequest) {
-        Optional<User> userOptional = userRepository.findByUsername(loginRequest.getUsername());
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            boolean matches = passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
-            if (matches) {
-                String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
-                return ResponseEntity.ok(Map.of("token", token)); // ✅ 统一返回 JSON 格式
-            }
-        }
-        return ResponseEntity.status(401).body("Invalid credentials");
-    }
+        String username = loginRequest.getUsername();
+        String password = loginRequest.getPassword();
+        Long tenantId = loginRequest.getTenantId();
 
+        Optional<User> optionalUser = userRepository.findByUsernameAndTenantId(username, tenantId);
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(401).body("Invalid username or tenant ID");
+        }
+
+        User user = optionalUser.get();
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return ResponseEntity.status(401).body("Invalid password");
+        }
+
+        String token = jwtUtil.generateToken(user);
+        return ResponseEntity.ok(Map.of("token", token));
+    }
 }
