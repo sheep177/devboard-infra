@@ -6,6 +6,7 @@ export interface User {
     role: string;
     tenantId: number;
     token: string;
+    id: number;
 }
 
 interface UserContextType {

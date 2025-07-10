@@ -60,5 +60,11 @@ public class CommentController {
         }
     }
 
+    @GetMapping("/{taskId}/top")
+    public List<Comment> getTopLevelComments(@PathVariable Long taskId) {
+        return commentRepository.findByTaskIdAndTenantIdAndParentIdIsNull(taskId, authUtil.getCurrentTenantId());
+    }
+
+
 
 }
