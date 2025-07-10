@@ -66,8 +66,8 @@ public class TaskController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<Task> patchTask(@PathVariable Long id, @RequestBody Task partialUpdate) {
-        Long tenantId = authUtil.getCurrentTenantId();
-        Optional<Task> optionalTask = taskRepository.findByIdAndTenantId(id, tenantId);
+        Optional<Task> optionalTask = taskRepository.findById(id);
+
         if (optionalTask.isEmpty()) return ResponseEntity.notFound().build();
 
         Task task = optionalTask.get();
