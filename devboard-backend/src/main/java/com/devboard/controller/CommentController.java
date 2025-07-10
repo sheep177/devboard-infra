@@ -40,4 +40,11 @@ public class CommentController {
         commentRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping
+    public List<Comment> getAllCommentsByTenant() {
+        Long tenantId = authUtil.getCurrentTenantId();
+        return commentRepository.findByTenantId(tenantId);
+    }
+
 }

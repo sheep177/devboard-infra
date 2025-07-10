@@ -65,4 +65,25 @@ public class UserController {
         userRepo.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping
+    public ResponseEntity<?> getUsersByTenant(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        if (token == null || !token.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing token");
+        }
+
+        String jwt = token.substring(7);
+        String username = jwtUtil.extractUsername(jwt);
+        Optional<User> currentUser = userRepo.findByUsername(username);
+        if (currentUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user");
+        }
+
+        Long tenantId = currentUser.get().getTenantId();
+        List<User> users = userRepo.findByTenantId(tenantId);
+        users.forEach(u -> u.setPassword(null)); // 不返回密码
+        return ResponseEntity.ok(users);
+    }
+
 }
