@@ -11,5 +11,8 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findByTaskIdAndTenantId(Long taskId, Long tenantId);
     Optional<Comment> findByIdAndTenantId(Long id, Long tenantId);
     List<Comment> findByTenantId(Long tenantId);
+    List<Comment> findByTaskIdAndTenantIdAndParentIdIsNullOrderByCreatedAtAsc(Long taskId, Long tenantId);
+    List<Comment> findByTaskIdAndTenantIdAndParentIdIsNullOrderByCreatedAtDesc(Long taskId, Long tenantId);
+
 
 }

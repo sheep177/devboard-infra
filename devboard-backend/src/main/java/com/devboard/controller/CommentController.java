@@ -47,4 +47,18 @@ public class CommentController {
         return commentRepository.findByTenantId(tenantId);
     }
 
+    @GetMapping("/task/{taskId}/top")
+    public List<Comment> getTopLevelCommentsSorted(
+            @PathVariable Long taskId,
+            @RequestParam(defaultValue = "desc") String sort
+    ) {
+        Long tenantId = authUtil.getCurrentTenantId();
+        if ("asc".equalsIgnoreCase(sort)) {
+            return commentRepository.findByTaskIdAndTenantIdAndParentIdIsNullOrderByCreatedAtAsc(taskId, tenantId);
+        } else {
+            return commentRepository.findByTaskIdAndTenantIdAndParentIdIsNullOrderByCreatedAtDesc(taskId, tenantId);
+        }
+    }
+
+
 }

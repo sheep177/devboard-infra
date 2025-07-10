@@ -15,9 +15,7 @@ export default function CommentSection({ taskId }: { taskId: number }) {
     const fetchTopLevel = async () => {
         setLoading(true);
         try {
-            const res = await api.get(`/comments/${taskId}/top`, {
-                params: { sort: sortOrder },
-            });
+            const res = await api.get(`/comments/task/${taskId}`);
             setTopComments(res.data);
         } catch (err) {
             console.error("Failed to load comments", err);
